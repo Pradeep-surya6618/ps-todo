@@ -1,26 +1,69 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-background-light: #fdf2f8; /* Soft pinkish white */
+  --color-background-dark: #0f172a; /* Deep slate */
+
+  --color-primary: #ff2e63;
+  --color-secondary: #8b5cf6;
+  --color-accent: #ff2e63;
+
+  --color-card-light: rgba(255, 255, 255, 0.7);
+  --color-card-dark: rgba(30, 41, 59, 0.7);
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+
+  --animate-check-pop: check-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes check-pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
   }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+:root {
+  --background: #fdf2f8;
+  --foreground: #1e293b;
+}
+
+[data-theme="dark"] {
+  --background: #0f172a;
+  --foreground: #f8fafc;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@utility glass {
+  @apply backdrop-blur-md border border-white/20 shadow-xl;
+}
+
+@utility glass-dark {
+  @apply backdrop-blur-md border border-white/10 shadow-2xl;
+}
+
+@utility bento-card {
+  @apply rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98];
+}
+
+/* Custom Bottom Nav styling */
+@utility bottom-nav {
+  @apply fixed bottom-0 left-0 right-0 h-16 glass flex items-center justify-around z-50 rounded-t-2xl;
+}
+
+@layer base {
+  * {
+    @apply border-pink-100/20;
+  }
 }
