@@ -1,21 +1,41 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useSnackbar } from "notistack";
 import { CheckCircle2, Heart } from "lucide-react";
+import { Suspense } from "react";
 
-export default function ResetPassword() {
+function ResetPasswordForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const resetToken = searchParams.get("token");
+
+  useEffect(() => {
+    if (!resetToken) {
+      enqueueSnackbar("Invalid reset link. Please try again.", {
+        variant: "error",
+      });
+      router.push("/forgot-password");
+    }
+  }, [resetToken, router, enqueueSnackbar]);
 
   const handleReset = async (e) => {
     e.preventDefault();
+
+    if (password.length < 6) {
+      enqueueSnackbar("Password must be at least 6 characters long", {
+        variant: "error",
+      });
+      return;
+    }
+
     if (password !== confirmPassword) {
       enqueueSnackbar("Passwords do not match", { variant: "error" });
       return;
@@ -23,13 +43,34 @@ export default function ResetPassword() {
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resetToken, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setIsSuccess(true);
+        enqueueSnackbar("Password reset successfully!", {
+          variant: "success",
+        });
+        setTimeout(() => router.push("/login"), 3000);
+      } else {
+        enqueueSnackbar(data.error || "Failed to reset password", {
+          variant: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      enqueueSnackbar("Network error. Please try again.", {
+        variant: "error",
+      });
+    } finally {
       setIsLoading(false);
-      setIsSuccess(true);
-      enqueueSnackbar("Password reset successfully!", { variant: "success" });
-      setTimeout(() => router.push("/login"), 3000);
-    }, 2000);
+    }
   };
 
   return (
@@ -152,5 +193,19 @@ export default function ResetPassword() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPassword() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[100dvh] bg-background flex items-center justify-center">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

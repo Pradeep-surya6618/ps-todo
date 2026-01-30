@@ -15,12 +15,35 @@ export default function ForgotPassword() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call to send reset email
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setIsSent(true);
+        enqueueSnackbar("Verification code sent to your email!", {
+          variant: "success",
+        });
+        // Redirect to verification page after 2 seconds
+        setTimeout(() => {
+          window.location.href = `/verify-code?email=${encodeURIComponent(email)}`;
+        }, 2000);
+      } else {
+        enqueueSnackbar(data.error || "Failed to send code", {
+          variant: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      enqueueSnackbar("Network error. Please try again.", { variant: "error" });
+    } finally {
       setIsLoading(false);
-      setIsSent(true);
-      enqueueSnackbar("Reset link sent to your email!", { variant: "info" });
-    }, 2000);
+    }
   };
 
   return (
