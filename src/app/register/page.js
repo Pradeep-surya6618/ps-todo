@@ -56,7 +56,7 @@ export default function Register() {
         <div className="flex items-center gap-2 group">
           <div className="w-8 h-8 cursor-pointer transition-all duration-300 group-hover:scale-110">
             <img
-              src="/icons/logo.png"
+              src="/icons/Logo.png"
               alt="SunMoonie"
               className="w-full h-full object-cover"
             />
@@ -98,7 +98,7 @@ export default function Register() {
                   setFormData({ ...formData, name: e.target.value })
                 }
                 className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-lg py-2 px-3 outline-none focus:ring-2 focus:ring-primary/40 transition-all text-sm text-foreground font-medium"
-                placeholder="John Doe"
+                placeholder="Surya"
                 required
               />
             </div>
@@ -114,7 +114,7 @@ export default function Register() {
                   setFormData({ ...formData, email: e.target.value })
                 }
                 className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-lg py-2 px-3 outline-none focus:ring-2 focus:ring-primary/40 transition-all text-sm text-foreground font-medium"
-                placeholder="Johndoe@gmail.com"
+                placeholder="surya1812@gmail.com"
                 required
               />
             </div>

@@ -80,7 +80,7 @@ function ResetPasswordForm() {
         <div className="flex items-center gap-2 group">
           <div className="w-8 h-8 cursor-pointer transition-all duration-300 group-hover:scale-110">
             <img
-              src="/icons/logo.png"
+              src="/icons/Logo.png"
               alt="SunMoonie"
               className="w-full h-full object-cover"
             />

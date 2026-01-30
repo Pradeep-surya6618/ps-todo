@@ -53,7 +53,7 @@ export default function ForgotPassword() {
         <div className="flex items-center gap-2 group">
           <div className="w-8 h-8 rounded-lg overflow-hidden border border-black/10 dark:border-white/10 shadow-lg cursor-pointer transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-primary/20">
             <img
-              src="/icons/logo.png"
+              src="/icons/Logo.png"
               alt="SunMoonie"
               className="w-full h-full object-cover"
             />
@@ -112,7 +112,7 @@ export default function ForgotPassword() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-lg py-2 px-3 outline-none focus:ring-2 focus:ring-primary/40 transition-all text-sm text-foreground font-medium"
-                  placeholder="Johndoe@gmail.com"
+                  placeholder="surya1812@gmail.com"
                   required
                 />
               </div>
