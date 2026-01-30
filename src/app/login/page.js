@@ -5,7 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useSnackbar } from "notistack";
-import { Chrome } from "lucide-react";
+import { Chrome, Heart } from "lucide-react";
 import { Suspense } from "react";
 
 function LoginForm() {
@@ -51,7 +51,7 @@ function LoginForm() {
       {/* Fixed Logo & Brand - Top Left */}
       <div className="fixed top-0 left-0 z-50 p-4 md:p-6 animate-fade-in">
         <div className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg overflow-hidden border border-black/10 dark:border-white/10 shadow-lg cursor-pointer transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-primary/20">
+          <div className="w-8 h-8 cursor-pointer transition-all duration-300 group-hover:scale-110">
             <img
               src="/icons/logo.png"
               alt="SunMoonie"
@@ -207,6 +207,16 @@ function LoginForm() {
         />
         <div className="absolute inset-0 bg-gradient-to-br from-black/20 dark:from-black/60 to-transparent transition-opacity duration-500" />
         <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        {/* Centered Heart Icon */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Heart
+            className="text-primary drop-shadow-2xl transition-all duration-500 opacity-0 group-hover:opacity-100 group-hover:scale-110"
+            size={64}
+            fill="white"
+            strokeWidth={2}
+          />
+        </div>
       </div>
     </div>
   );

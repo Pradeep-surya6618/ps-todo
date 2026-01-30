@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useSnackbar } from "notistack";
-import { Send } from "lucide-react";
+import { Send, Heart } from "lucide-react";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -124,6 +124,16 @@ export default function ForgotPassword() {
         />
         <div className="absolute inset-0 bg-gradient-to-br from-black/20 dark:from-black/60 to-transparent transition-opacity duration-500" />
         <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        {/* Centered Heart Icon */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Heart
+            className="text-primary drop-shadow-2xl transition-all duration-500 opacity-0 group-hover:opacity-100 group-hover:scale-110"
+            size={64}
+            fill="white"
+            strokeWidth={2}
+          />
+        </div>
       </div>
     </div>
   );
