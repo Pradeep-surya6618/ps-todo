@@ -13,9 +13,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Premium Todo PWA",
-  description: "A high-performance, premium Todo app with Glassmorphism UI.",
+  title: "SunMoonie - Premium Task Harmony",
+  description:
+    "SunMoonie: Harmonies your workflow between the energy of the sun and the calm of the moon. A premium, cosmic task management experience.",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/icons/Moon.jpg",
+    apple: "/icons/Moon.jpg",
+  },
 };
 
 export const viewport = {

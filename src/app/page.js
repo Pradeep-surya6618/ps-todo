@@ -7,10 +7,14 @@ export default function Home() {
       {/* Navbar Area */}
       <nav className="max-w-7xl mx-auto px-6 py-8 flex items-center justify-between">
         <div className="flex items-center gap-3 font-black text-2xl tracking-tighter">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
-            <ListTodo size={24} />
+          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-primary/20">
+            <img
+              src="/icons/Moon.jpg"
+              alt="SunMoonie"
+              className="w-full h-full object-cover"
+            />
           </div>
-          <span className="text-white">TodoPWA</span>
+          <span className="text-white">SunMoonie</span>
         </div>
         <Link
           href="/login"
@@ -28,15 +32,14 @@ export default function Home() {
         </div>
 
         <h1 className="text-6xl md:text-8xl font-black tracking-tight mb-8 leading-[0.9] text-white">
-          Manage Tasks <br />
+          Organize Life <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-pink-500">
-            with Elegance.
+            In Cosmic Rhythm.
           </span>
         </h1>
-
         <p className="max-w-2xl text-lg md:text-xl text-gray-500 font-medium mb-12 leading-relaxed">
-          Experience the ultimate productivity tool designed with glassmorphism
-          aesthetics and high-performance PWA capabilities.
+          SunMoonie harmonies your workflow between the energy of the sun and
+          the calm of the moon. Experience the ultimate productivity companion.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto">

@@ -13,6 +13,12 @@ const UserSchema = new mongoose.Schema(
       select: false,
     },
     image: String,
+    isOnboarded: {
+      type: Boolean,
+      default: false,
+    },
+    bio: String,
+    role: String,
   },
   { timestamps: true },
 );

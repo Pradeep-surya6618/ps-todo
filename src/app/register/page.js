@@ -1,43 +1,49 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  ListTodo,
-  Chrome,
-  Mail,
-  Lock,
-  ArrowRight,
-  CheckCircle2,
-} from "lucide-react";
+import { ListTodo, Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
 
-import { Suspense } from "react";
-
-function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export default function Register() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const registered = searchParams.get("registered");
 
-  const handleCredentialsLogin = async (e) => {
+  useEffect(() => {
+    console.log("Register page mounted");
+  }, []);
+
+  const handleRegister = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-    if (res?.ok) {
-      router.push("/dashboard");
-    } else {
+
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // Success: Redirect to login with status
+        router.push("/login?registered=true");
+      } else {
+        setError(data.error || "Something went wrong");
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setError("Network error. Please check your connection.");
+    } finally {
       setIsLoading(false);
-      setError("Invalid email or password");
     }
   };
 
@@ -55,41 +61,41 @@ function LoginForm() {
           <h1 className="text-4xl font-black tracking-tight text-white">
             SunMoonie
           </h1>
-          <p className="text-gray-500 font-medium pb-2">
-            Log in to sync your premium todos.
+          <p className="text-gray-500 font-medium">
+            Start your cosmic journey today.
           </p>
         </div>
 
         <div className="glass bg-white/5 p-8 rounded-3xl space-y-6 border border-white/10 shadow-2xl">
-          {registered && (
-            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-500">
-              <CheckCircle2 size={16} />
-              Account created! Please log in.
-            </div>
-          )}
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-sm font-bold">
               {error}
             </div>
           )}
-          <button
-            type="button"
-            onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-            className="w-full py-4 rounded-2xl bg-white text-gray-900 font-bold flex items-center justify-center gap-3 hover:bg-gray-100 transition-all active:scale-[0.98] shadow-lg shadow-white/5"
-          >
-            <Chrome size={20} />
-            Continue with Google
-          </button>
 
-          <div className="relative flex items-center gap-4 py-2">
-            <div className="flex-1 h-px bg-white/10" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">
-              OR
-            </span>
-            <div className="flex-1 h-px bg-white/10" />
-          </div>
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">
+                Full Name
+              </label>
+              <div className="relative">
+                <User
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+                  size={18}
+                />
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-primary/20 transition-all text-white font-medium"
+                  placeholder="John Doe"
+                  required
+                />
+              </div>
+            </div>
 
-          <form onSubmit={handleCredentialsLogin} className="space-y-4">
             <div className="space-y-1">
               <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">
                 Email
@@ -101,8 +107,10 @@ function LoginForm() {
                 />
                 <input
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-primary/20 transition-all text-white font-medium"
                   placeholder="name@example.com"
                   required
@@ -111,17 +119,9 @@ function LoginForm() {
             </div>
 
             <div className="space-y-1">
-              <div className="flex justify-between items-center ml-1">
-                <label className="text-xs font-bold uppercase tracking-widest text-gray-500">
-                  Password
-                </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-[10px] font-bold text-primary hover:underline"
-                >
-                  Forgot?
-                </Link>
-              </div>
+              <label className="text-xs font-bold uppercase tracking-widest text-gray-500 ml-1">
+                Password
+              </label>
               <div className="relative">
                 <Lock
                   className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
@@ -129,8 +129,10 @@ function LoginForm() {
                 />
                 <input
                   type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-primary/20 transition-all text-white font-medium"
                   placeholder="••••••••"
                   required
@@ -143,33 +145,23 @@ function LoginForm() {
               disabled={isLoading}
               className="w-full py-4 rounded-2xl bg-primary text-white font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/90 transition-all active:scale-[0.98] shadow-xl shadow-primary/20 disabled:opacity-50"
             >
-              {isLoading ? "Signing in..." : "Log In"}
-              <ArrowRight size={18} />
+              {isLoading ? (
+                <Loader2 className="animate-spin" size={20} />
+              ) : (
+                "Sign Up"
+              )}
+              {!isLoading && <ArrowRight size={18} />}
             </button>
           </form>
         </div>
 
         <p className="text-center text-sm font-bold text-gray-600">
-          Don't have an account?{" "}
-          <Link href="/register" className="text-primary hover:underline">
-            Sign up free
+          Already have an account?{" "}
+          <Link href="/login" className="text-primary hover:underline">
+            Log in
           </Link>
         </p>
       </div>
     </div>
-  );
-}
-
-export default function Login() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-        </div>
-      }
-    >
-      <LoginForm />
-    </Suspense>
   );
 }

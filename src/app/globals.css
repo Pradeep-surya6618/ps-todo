@@ -34,7 +34,7 @@
 }
 
 [data-theme="dark"] {
-  --background: #0f172a;
+  --background: #0d0915; /* Deep dark purple/slate mix */
   --foreground: #f8fafc;
 }
 

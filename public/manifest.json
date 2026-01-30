@@ -1,21 +1,16 @@
 {
-  "name": "Premium Todo PWA",
-  "short_name": "TodoPWA",
-  "description": "A high-performance, premium Todo app with Glassmorphism UI.",
+  "name": "SunMoonie",
+  "short_name": "SunMoonie",
+  "description": "Harmonies your workflow between the energy of the sun and the calm of the moon.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#FF2E63",
   "icons": [
     {
-      "src": "/icons/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "/icons/Moon.jpg",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg"
     }
   ]
 }

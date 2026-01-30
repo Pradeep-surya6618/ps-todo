@@ -2,71 +2,105 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ListTodo, Settings, User, LogOut } from "lucide-react";
-import { cn } from "@/lib/utils";
+import {
+  LayoutDashboard,
+  Calendar,
+  CheckCircle2,
+  Settings,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  User,
+  ListTodo,
+} from "lucide-react";
 import { signOut } from "next-auth/react";
+import { useNavStore } from "@/store/useNavStore";
+import { cn } from "@/lib/utils";
 
-const navItems = [
-  { name: "Home", icon: Home, href: "/dashboard" },
-  { name: "Tasks", icon: ListTodo, href: "/dashboard/tasks" },
-  { name: "Profile", icon: User, href: "/dashboard/profile" },
+const menuItems = [
+  { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
+  { icon: Calendar, label: "Upcoming", href: "/dashboard/upcoming" },
+  { icon: CheckCircle2, label: "Completed", href: "/dashboard/completed" },
+  { icon: User, label: "Profile", href: "/onboarding" },
+  { icon: Settings, label: "Settings", href: "/dashboard/settings" },
 ];
 
-export function Sidebar() {
+export default function Sidebar() {
   const pathname = usePathname();
+  const { isSidebarCollapsed, toggleSidebar } = useNavStore();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 h-screen fixed left-0 top-0 glass shadow-2xl bg-white/5 p-6 z-40 border-r border-white/10">
-      <div className="text-2xl font-bold text-primary mb-12 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30">
-          <ListTodo size={24} />
+    <aside
+      className={cn(
+        "hidden md:flex flex-col glass border-r border-white/5 h-screen sticky top-0 transition-all duration-300 ease-in-out z-50",
+        isSidebarCollapsed ? "w-20" : "w-72",
+      )}
+    >
+      <div className="p-6 h-20 flex items-center justify-between overflow-hidden">
+        <div
+          className={cn(
+            "flex items-center gap-3 transition-opacity duration-300",
+            isSidebarCollapsed && "opacity-0 invisible",
+          )}
+        >
+          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-primary/30 shrink-0">
+            <img
+              src="/icons/Moon.jpg"
+              alt="SunMoonie"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <span className="text-xl font-black tracking-tighter text-white whitespace-nowrap">
+            SunMoonie.
+          </span>
         </div>
-        <span className="tracking-tight">TodoPWA</span>
+        <button
+          onClick={toggleSidebar}
+          className="p-2 hover:bg-white/5 rounded-xl text-gray-400 absolute right-[-16px] top-6 bg-background border border-white/10 shadow-lg"
+        >
+          {isSidebarCollapsed ? (
+            <ChevronRight size={16} />
+          ) : (
+            <ChevronLeft size={16} />
+          )}
+        </button>
       </div>
 
-      <nav className="flex-1 space-y-3">
-        {navItems.map((item) => (
+      <nav className="flex-1 px-4 py-6 space-y-2">
+        {menuItems.map((item) => (
           <Link
-            key={item.name}
+            key={item.href}
             href={item.href}
             className={cn(
-              "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group hover:bg-white/5",
+              "flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-300 font-bold tracking-tight relative group",
               pathname === item.href
-                ? "bg-primary/10 text-primary border border-primary/20 shadow-lg shadow-primary/5 scale-[1.02]"
-                : "text-gray-500 hover:text-gray-300",
+                ? "bg-primary text-white shadow-xl shadow-primary/20"
+                : "text-gray-500 hover:bg-white/5 hover:text-white",
             )}
           >
-            <item.icon
-              size={20}
-              className={cn(
-                "transition-transform group-hover:scale-110",
-                pathname === item.href ? "text-primary" : "text-gray-600",
-              )}
-            />
-            <span className="font-semibold">{item.name}</span>
+            <item.icon size={22} className="shrink-0" />
+            {!isSidebarCollapsed && (
+              <span className="text-sm">{item.label}</span>
+            )}
+            {isSidebarCollapsed && (
+              <div className="absolute left-20 bg-gray-900 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-[100]">
+                {item.label}
+              </div>
+            )}
           </Link>
         ))}
       </nav>
 
-      <div className="mt-auto space-y-3 pt-6 border-t border-white/10">
-        <Link
-          href="/dashboard/settings"
-          className={cn(
-            "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 hover:bg-white/5 text-gray-500 hover:text-gray-300",
-          )}
-        >
-          <Settings size={20} />
-          <span className="font-medium">Settings</span>
-        </Link>
+      <div className="p-4 border-t border-white/5">
         <button
           onClick={() => signOut()}
-          className="flex items-center gap-3 px-4 py-3 w-full rounded-2xl transition-all duration-300 hover:bg-red-500/10 text-gray-500 hover:text-red-400 group"
+          className={cn(
+            "flex items-center gap-4 w-full px-4 py-4 rounded-2xl text-gray-500 hover:bg-red-500/10 hover:text-red-500 transition-all duration-300 font-bold",
+            isSidebarCollapsed && "justify-center",
+          )}
         >
-          <LogOut
-            size={20}
-            className="group-hover:translate-x-1 transition-transform"
-          />
-          <span className="font-medium text-left">Logout</span>
+          <LogOut size={22} className="shrink-0" />
+          {!isSidebarCollapsed && <span className="text-sm">Log Out</span>}
         </button>
       </div>
     </aside>

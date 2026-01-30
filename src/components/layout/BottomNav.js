@@ -2,34 +2,33 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ListTodo, User, Settings } from "lucide-react";
+import { Home, ListTodo, User, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { name: "Home", icon: Home, href: "/dashboard" },
-  { name: "Tasks", icon: ListTodo, href: "/dashboard/tasks" },
-  { name: "Profile", icon: User, href: "/dashboard/profile" },
-  { name: "Settings", icon: Settings, href: "/dashboard/settings" },
+  { name: "Upcoming", icon: Calendar, href: "/dashboard/upcoming" },
+  { name: "Tasks", icon: ListTodo, href: "/dashboard" },
+  { name: "Profile", icon: User, href: "/onboarding" },
 ];
 
-export function BottomNav() {
+export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="md:hidden fixed bottom-6 left-6 right-6 h-16 glass shadow-2xl bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl flex items-center justify-around z-50 px-2">
+    <nav className="md:hidden fixed bottom-4 left-4 right-4 h-16 glass-dark border border-white/10 rounded-2xl flex items-center justify-around z-50 px-2 shadow-2xl">
       {navItems.map((item) => (
         <Link
           key={item.name}
           href={item.href}
           className={cn(
-            "flex flex-col items-center justify-center gap-1 transition-all duration-500 relative px-4 py-2 rounded-xl",
-            pathname === item.href ? "text-primary scale-110" : "text-gray-500",
+            "flex items-center justify-center p-3 rounded-xl transition-all duration-300",
+            pathname === item.href
+              ? "bg-primary text-white scale-110 shadow-lg shadow-primary/30"
+              : "text-gray-500 hover:text-white",
           )}
         >
-          {pathname === item.href && (
-            <span className="absolute top-0 w-8 h-1 bg-primary rounded-full shadow-[0_0_10px_rgba(255,46,99,0.5)] animate-pulse" />
-          )}
-          <item.icon size={22} strokeWidth={pathname === item.href ? 2.5 : 2} />
+          <item.icon size={22} />
         </Link>
       ))}
     </nav>

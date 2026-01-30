@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useTodoStore } from "@/store/useTodoStore";
 import { TodoCard } from "@/components/TodoCard";
 import { TodoForm } from "@/components/TodoForm";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { motion, AnimatePresence } from "framer-motion";
 import { ListTodo, Search } from "lucide-react";
