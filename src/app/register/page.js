@@ -50,32 +50,42 @@ export default function Register() {
 
   return (
     <div className="flex min-h-[100dvh] bg-background text-foreground relative overflow-hidden transition-colors duration-500">
-      {/* Dynamic Background Glow - Theme Aware */}
-      <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/10 dark:bg-primary/20 blur-[120px] rounded-full transition-opacity duration-1000 hidden dark:block" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-500/5 dark:bg-purple-500/10 blur-[100px] rounded-full transition-opacity duration-1000 hidden dark:block" />
+      {/* Fixed Logo & Brand - Top Left */}
+      <div className="fixed top-0 left-0 z-50 p-4 md:p-6 animate-fade-in">
+        <div className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-lg overflow-hidden border border-black/10 dark:border-white/10 shadow-lg cursor-pointer transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-primary/20">
+            <img
+              src="/icons/logo.png"
+              alt="SunMoonie"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <span className="text-foreground font-black text-xl tracking-tight transition-all duration-300 group-hover:text-primary">
+            SunMoonie
+          </span>
+        </div>
+      </div>
 
-      {/* Left Side: Form */}
+      {/* Animated Background Glows */}
+      <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/10 dark:bg-primary/20 blur-[120px] rounded-full transition-opacity duration-1000 animate-float" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-500/5 dark:bg-purple-500/10 blur-[100px] rounded-full transition-opacity duration-1000 animate-float-delayed" />
+      <div className="absolute top-[20%] left-[10%] w-[30%] h-[30%] bg-pink-500/5 dark:bg-pink-500/10 blur-[80px] rounded-full transition-opacity duration-1000 animate-pulse-slow" />
+
+      {/* Left Side: Form - Centered */}
       <div className="flex-1 flex items-center justify-center p-4 md:p-8 z-10 transition-colors duration-500">
-        <div className="w-full max-w-[340px] space-y-6">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-6 h-6 rounded-md overflow-hidden border border-black/10 dark:border-white/10 shadow-lg cursor-pointer transition-transform hover:scale-110">
-                <img
-                  src="/icons/Moon.jpg"
-                  alt="SunMoonie"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <span className="text-foreground font-black text-lg tracking-tight">
-                SunMoonie
-              </span>
-            </div>
-            <h1 className="text-xl font-bold text-foreground leading-tight">
+        <div className="w-full max-w-[380px] space-y-8 animate-slide-up">
+          {/* Centered Welcome Section */}
+          <div className="text-center space-y-2 animate-fade-in-delayed">
+            <h1 className="text-2xl font-bold text-foreground leading-tight">
               Create your account
             </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+              Join SunMoonie and start your cosmic journey
+            </p>
           </div>
 
-          <form onSubmit={handleRegister} className="space-y-4">
+          {/* Form with Enhanced Animations */}
+          <form onSubmit={handleRegister} className="space-y-5">
             <div className="space-y-1.5">
               <label className="text-[12px] font-medium text-gray-500 dark:text-gray-400">
                 Full Name
@@ -145,14 +155,15 @@ export default function Register() {
         </div>
       </div>
 
-      {/* Right Side: Banner */}
-      <div className="hidden lg:block lg:flex-1 relative overflow-hidden m-4 rounded-[40px] shadow-2xl">
+      {/* Right Side: Banner with Enhanced Effects */}
+      <div className="hidden lg:block lg:flex-1 relative overflow-hidden m-4 rounded-[40px] shadow-2xl animate-fade-in-delayed group">
         <img
           src="/icons/banner.jpg"
           alt="Branding Banner"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/20 dark:from-black/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/20 dark:from-black/60 to-transparent transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       </div>
     </div>
   );

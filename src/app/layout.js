@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "SunMoonie - Premium Task Harmony",
+  title: "SunMoonie",
   description:
     "SunMoonie: Harmonies your workflow between the energy of the sun and the calm of the moon. A premium, cosmic task management experience.",
   manifest: "/manifest.json",
