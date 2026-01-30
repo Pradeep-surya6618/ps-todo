@@ -1,24 +1,26 @@
+"use client";
+
 import Link from "next/link";
 import { ListTodo, ArrowRight, Zap, Shield, Sparkles } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 overflow-x-hidden transition-colors duration-500">
       {/* Navbar Area */}
       <nav className="max-w-7xl mx-auto px-6 py-8 flex items-center justify-between">
         <div className="flex items-center gap-3 font-black text-2xl tracking-tighter">
-          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-primary/20">
+          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-primary/20 cursor-pointer">
             <img
               src="/icons/Moon.jpg"
               alt="SunMoonie"
               className="w-full h-full object-cover"
             />
           </div>
-          <span className="text-white">SunMoonie</span>
+          <span className="text-foreground transition-colors">SunMoonie</span>
         </div>
         <Link
           href="/login"
-          className="px-6 py-2.5 rounded-2xl bg-white/5 border border-white/10 font-bold hover:bg-white/10 transition-all text-sm md:text-base text-white"
+          className="px-6 py-2.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 font-bold hover:bg-black/10 dark:hover:bg-white/10 transition-all text-sm md:text-base text-foreground cursor-pointer"
         >
           Sign In
         </Link>
@@ -31,13 +33,13 @@ export default function Home() {
           Now with Offline Mode
         </div>
 
-        <h1 className="text-6xl md:text-8xl font-black tracking-tight mb-8 leading-[0.9] text-white">
+        <h1 className="text-6xl md:text-8xl font-black tracking-tight mb-8 leading-[0.9] text-foreground transition-colors italic">
           Organize Life <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-pink-500">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-pink-500 not-italic">
             In Cosmic Rhythm.
           </span>
         </h1>
-        <p className="max-w-2xl text-lg md:text-xl text-gray-500 font-medium mb-12 leading-relaxed">
+        <p className="max-w-2xl text-lg md:text-xl text-gray-500 dark:text-gray-400 font-medium mb-12 leading-relaxed">
           SunMoonie harmonies your workflow between the energy of the sun and
           the calm of the moon. Experience the ultimate productivity companion.
         </p>
@@ -45,7 +47,7 @@ export default function Home() {
         <div className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto">
           <Link
             href="/login"
-            className="px-10 py-5 rounded-3xl bg-primary text-white font-black text-lg uppercase tracking-widest shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
+            className="px-10 py-5 rounded-3xl bg-primary text-white font-black text-lg uppercase tracking-widest shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 cursor-pointer"
           >
             Get Started Free
             <ArrowRight size={22} />
@@ -73,13 +75,15 @@ export default function Home() {
           ].map((f, i) => (
             <div
               key={i}
-              className="glass bg-white/5 p-8 rounded-[2.5rem] border border-white/5 text-left group hover:bg-white/10 transition-all duration-500 shadow-2xl"
+              className="glass bg-black/5 dark:bg-white/5 p-8 rounded-[2.5rem] border border-black/5 dark:border-white/5 text-left group hover:bg-black/10 dark:hover:bg-white/10 transition-all duration-500 shadow-2xl"
             >
               <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform duration-500">
                 <f.icon size={28} />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-white">{f.title}</h3>
-              <p className="text-gray-500 font-medium leading-relaxed">
+              <h3 className="text-xl font-bold mb-3 text-foreground">
+                {f.title}
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
                 {f.desc}
               </p>
             </div>

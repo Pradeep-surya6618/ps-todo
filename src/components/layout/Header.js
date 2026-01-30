@@ -10,35 +10,35 @@ export default function Header() {
   const { data: session } = useSession();
 
   return (
-    <header className="h-16 glass sticky top-0 z-40 border-b border-white/5 px-4 md:px-8 flex items-center justify-between">
+    <header className="h-16 glass sticky top-0 z-40 border-b border-black/5 dark:border-white/5 px-4 md:px-8 flex items-center justify-between transition-colors duration-500">
       <div className="flex items-center gap-4">
         {/* Mobile Menu Icon */}
         <button
           onClick={toggleMobileDrawer}
-          className="p-2 hover:bg-white/5 rounded-xl md:hidden text-gray-400"
+          className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl md:hidden text-gray-400"
         >
           <Menu size={24} />
         </button>
 
         <div className="flex items-center gap-2 md:hidden">
-          <div className="w-8 h-8 rounded-lg overflow-hidden border border-white/10">
+          <div className="w-8 h-8 rounded-lg overflow-hidden border border-black/10 dark:border-white/10">
             <img
               src="/icons/Moon.jpg"
               alt="SunMoonie"
               className="w-full h-full object-cover"
             />
           </div>
-          <span className="text-white font-black tracking-tight">
+          <span className="text-foreground font-black tracking-tight">
             SunMoonie.
           </span>
         </div>
 
-        <div className="hidden md:flex items-center gap-2 text-gray-400 bg-white/5 px-4 py-2 rounded-xl border border-white/5 w-64">
+        <div className="hidden md:flex items-center gap-2 text-gray-400 bg-black/5 dark:bg-white/5 px-4 py-2 rounded-xl border border-black/5 dark:border-white/5 w-64">
           <Search size={16} />
           <input
             type="text"
             placeholder="Search tasks..."
-            className="bg-transparent border-none outline-none text-sm font-medium w-full text-white placeholder:text-gray-500"
+            className="bg-transparent border-none outline-none text-sm font-medium w-full text-foreground placeholder:text-gray-500"
           />
         </div>
       </div>
@@ -46,16 +46,16 @@ export default function Header() {
       <div className="flex items-center gap-2 md:gap-4">
         <ThemeToggle />
 
-        <button className="p-2 hover:bg-white/5 rounded-xl text-gray-400 relative">
+        <button className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl text-gray-400 relative">
           <Bell size={20} />
           <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-background" />
         </button>
 
-        <div className="h-8 w-px bg-white/5 hidden md:block" />
+        <div className="h-8 w-px bg-black/5 dark:bg-white/5 hidden md:block" />
 
         <div className="flex items-center gap-3 pl-2">
           <div className="text-right hidden sm:block">
-            <p className="text-xs font-black text-white leading-none">
+            <p className="text-xs font-black text-foreground leading-none">
               {session?.user?.name}
             </p>
             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-none mt-1">

@@ -35,7 +35,7 @@ export function TodoForm({ onAdd }) {
             onChange={(e) => setTitle(e.target.value)}
             onFocus={() => setIsExpanding(true)}
             placeholder="Add a new task..."
-            className="flex-1 bg-transparent border-none outline-none px-4 py-4 text-lg font-semibold placeholder:text-gray-600 text-white"
+            className="flex-1 bg-transparent border-none outline-none px-4 py-4 text-lg font-semibold placeholder:text-gray-600 text-foreground"
           />
           <button
             type="submit"

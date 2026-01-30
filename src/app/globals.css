@@ -2,14 +2,14 @@
 
 @theme {
   --color-background-light: #fdf2f8; /* Soft pinkish white */
-  --color-background-dark: #0f172a; /* Deep slate */
+  --color-background-dark: #000000; /* Pure Black */
 
   --color-primary: #ff2e63;
   --color-secondary: #8b5cf6;
   --color-accent: #ff2e63;
 
   --color-card-light: rgba(255, 255, 255, 0.7);
-  --color-card-dark: rgba(30, 41, 59, 0.7);
+  --color-card-dark: rgba(20, 20, 20, 0.7);
 
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
@@ -31,11 +31,19 @@
 :root {
   --background: #fdf2f8;
   --foreground: #1e293b;
+  --auth-input-bg: rgba(255, 255, 255, 0.5);
+  --auth-input-border: rgba(255, 46, 99, 0.2);
+  --google-btn-bg: #ffffff;
+  --google-btn-text: #0f172a;
 }
 
 [data-theme="dark"] {
-  --background: #0d0915; /* Deep dark purple/slate mix */
+  --background: #000000; /* Pure Black */
   --foreground: #f8fafc;
+  --auth-input-bg: rgba(255, 255, 255, 0.05);
+  --auth-input-border: rgba(255, 46, 99, 0.1);
+  --google-btn-bg: rgba(255, 255, 255, 0.05);
+  --google-btn-text: #ffffff;
 }
 
 body {
@@ -46,7 +54,7 @@ body {
 }
 
 @utility glass {
-  @apply backdrop-blur-md border border-white/20 shadow-xl;
+  @apply backdrop-blur-md border border-black/10 dark:border-white/20 shadow-xl transition-colors duration-500;
 }
 
 @utility glass-dark {
@@ -63,7 +71,5 @@ body {
 }
 
 @layer base {
-  * {
-    @apply border-pink-100/20;
-  }
+  /* Removed universal border to prevent utility class overrides */
 }

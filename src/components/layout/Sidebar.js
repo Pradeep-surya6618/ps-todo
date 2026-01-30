@@ -32,7 +32,7 @@ export default function Sidebar() {
   return (
     <aside
       className={cn(
-        "hidden md:flex flex-col glass border-r border-white/5 h-screen sticky top-0 transition-all duration-300 ease-in-out z-50",
+        "hidden md:flex flex-col glass border-r border-black/5 dark:border-white/5 h-screen sticky top-0 transition-all duration-300 ease-in-out z-50 transition-colors duration-500",
         isSidebarCollapsed ? "w-20" : "w-72",
       )}
     >
@@ -50,13 +50,13 @@ export default function Sidebar() {
               className="w-full h-full object-cover"
             />
           </div>
-          <span className="text-xl font-black tracking-tighter text-white whitespace-nowrap">
+          <span className="text-xl font-black tracking-tighter text-foreground whitespace-nowrap">
             SunMoonie.
           </span>
         </div>
         <button
           onClick={toggleSidebar}
-          className="p-2 hover:bg-white/5 rounded-xl text-gray-400 absolute right-[-16px] top-6 bg-background border border-white/10 shadow-lg"
+          className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl text-gray-400 absolute right-[-16px] top-6 bg-background border border-black/10 dark:border-white/10 shadow-lg"
         >
           {isSidebarCollapsed ? (
             <ChevronRight size={16} />
@@ -75,7 +75,7 @@ export default function Sidebar() {
               "flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-300 font-bold tracking-tight relative group",
               pathname === item.href
                 ? "bg-primary text-white shadow-xl shadow-primary/20"
-                : "text-gray-500 hover:bg-white/5 hover:text-white",
+                : "text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground",
             )}
           >
             <item.icon size={22} className="shrink-0" />
@@ -83,7 +83,7 @@ export default function Sidebar() {
               <span className="text-sm">{item.label}</span>
             )}
             {isSidebarCollapsed && (
-              <div className="absolute left-20 bg-gray-900 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-[100]">
+              <div className="absolute left-20 bg-black dark:bg-gray-900 border border-black/10 dark:border-white/10 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-[100]">
                 {item.label}
               </div>
             )}
@@ -91,7 +91,7 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-white/5">
+      <div className="p-4 border-t border-black/5 dark:border-white/5">
         <button
           onClick={() => signOut()}
           className={cn(
