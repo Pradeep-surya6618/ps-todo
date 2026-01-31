@@ -16,18 +16,21 @@ import {
 import { signOut } from "next-auth/react";
 import { useNavStore } from "@/store/useNavStore";
 import { cn } from "@/lib/utils";
+import LogoutConfirmationDialog from "../LogoutConfirmationDialog";
+import { useState } from "react";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
   { icon: Calendar, label: "Upcoming", href: "/dashboard/upcoming" },
   { icon: CheckCircle2, label: "Completed", href: "/dashboard/completed" },
-  { icon: User, label: "Profile", href: "/onboarding" },
+  { icon: User, label: "Profile", href: "/dashboard/profile" },
   { icon: Settings, label: "Settings", href: "/dashboard/settings" },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { isSidebarCollapsed, toggleSidebar } = useNavStore();
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
   return (
     <aside
@@ -93,7 +96,7 @@ export default function Sidebar() {
 
       <div className="p-4 border-t border-black/5 dark:border-white/5">
         <button
-          onClick={() => signOut()}
+          onClick={() => setIsLogoutDialogOpen(true)}
           className={cn(
             "flex items-center gap-4 w-full px-4 py-4 rounded-2xl text-gray-500 hover:bg-red-500/10 hover:text-red-500 transition-all duration-300 font-bold",
             isSidebarCollapsed && "justify-center",
@@ -103,6 +106,11 @@ export default function Sidebar() {
           {!isSidebarCollapsed && <span className="text-sm">Log Out</span>}
         </button>
       </div>
+
+      <LogoutConfirmationDialog
+        isOpen={isLogoutDialogOpen}
+        onClose={() => setIsLogoutDialogOpen(false)}
+      />
     </aside>
   );
 }

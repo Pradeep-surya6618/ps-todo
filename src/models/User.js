@@ -12,12 +12,26 @@ const UserSchema = new mongoose.Schema(
       type: String,
       select: false,
     },
-    image: String,
+    image: {
+      type: String,
+      default: "",
+    },
+    dob: {
+      type: Date,
+    },
+    gender: {
+      type: String,
+      enum: ["Male", "Female", "Other", ""],
+      default: "",
+    },
     isOnboarded: {
       type: Boolean,
       default: false,
     },
-    bio: String,
+    bio: {
+      type: String,
+      default: "",
+    },
     role: String,
   },
   { timestamps: true },

@@ -15,19 +15,22 @@ import {
 import { signOut } from "next-auth/react";
 import { useNavStore } from "@/store/useNavStore";
 import { cn } from "@/lib/utils";
+import LogoutConfirmationDialog from "../LogoutConfirmationDialog";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
   { icon: Calendar, label: "Upcoming", href: "/dashboard/upcoming" },
   { icon: CheckCircle2, label: "Completed", href: "/dashboard/completed" },
-  { icon: User, label: "Profile", href: "/onboarding" },
+  { icon: User, label: "Profile", href: "/dashboard/profile" },
   { icon: Settings, label: "Settings", href: "/dashboard/settings" },
 ];
 
 export default function MobileDrawer() {
   const pathname = usePathname();
   const { isMobileDrawerOpen, toggleMobileDrawer } = useNavStore();
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
   return (
     <AnimatePresence>
@@ -92,7 +95,7 @@ export default function MobileDrawer() {
 
             <div className="pt-6 border-t border-white/5 space-y-4">
               <button
-                onClick={() => signOut()}
+                onClick={() => setIsLogoutDialogOpen(true)}
                 className="flex items-center gap-4 w-full px-5 py-4 rounded-2xl text-red-500 hover:bg-red-500/10 transition-all duration-300 font-bold"
               >
                 <LogOut size={22} />
@@ -100,6 +103,12 @@ export default function MobileDrawer() {
               </button>
             </div>
           </motion.div>
+
+          {/* Logout Dialog */}
+          <LogoutConfirmationDialog
+            isOpen={isLogoutDialogOpen}
+            onClose={() => setIsLogoutDialogOpen(false)}
+          />
         </>
       )}
     </AnimatePresence>
