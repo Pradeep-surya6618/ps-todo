@@ -1,19 +1,54 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, Bell, Search } from "lucide-react";
+import { Menu, Bell, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavStore } from "@/store/useNavStore";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useSession } from "next-auth/react";
 
 export default function Header() {
-  const { toggleMobileDrawer } = useNavStore();
+  const { toggleMobileDrawer, isSidebarCollapsed, toggleSidebar } =
+    useNavStore();
   const { data: session } = useSession();
 
   return (
-    <header className="h-16 glass sticky top-0 z-40 border-b border-border shadow-sm px-4 md:px-8 flex items-center justify-between transition-colors duration-500">
+    <header className="h-16 glass sticky top-0 z-40 border-b border-border shadow-sm px-4 md:px-8 flex items-center justify-between transition-colors duration-500 relative overflow-visible">
+      {/* Animated Space Background - Desktop always, Mobile only in dark theme */}
+      <div className="hidden dark:block md:block absolute inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Stars */}
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={`star-${i}`}
+            className="absolute w-1 h-1 bg-foreground/40 dark:bg-white/60 rounded-full animate-pulse-slow"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              opacity: Math.random() * 0.6 + 0.4,
+            }}
+          />
+        ))}
+
+        {/* Floating Gradient Orbs */}
+        <div className="absolute top-0 left-1/4 w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 blur-2xl animate-float" />
+        <div className="absolute top-0 right-1/3 w-24 h-24 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-2xl animate-float-delayed" />
+      </div>
+
+      {/* Sidebar Toggle Button - Desktop Only */}
+      <button
+        onClick={toggleSidebar}
+        className="hidden md:flex p-2 hover:bg-primary/10 text-primary rounded-xl bg-card border-2 border-primary/30 shadow-lg shadow-primary/20 transition-all duration-300 cursor-pointer relative z-10"
+        title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+      >
+        {isSidebarCollapsed ? (
+          <ChevronRight size={18} />
+        ) : (
+          <ChevronLeft size={18} />
+        )}
+      </button>
+
       <div
-        className="flex items-center gap-3 md:hidden cursor-pointer"
+        className="flex items-center gap-3 md:hidden cursor-pointer relative z-10"
         title="SunMoonie"
       >
         <div className="w-10 h-10 overflow-hidden flex items-center justify-center">
@@ -28,7 +63,7 @@ export default function Header() {
         </span>
       </div>
 
-      <div className="flex items-center justify-end ml-auto gap-3">
+      <div className="flex items-center justify-end ml-auto gap-3 relative z-10">
         <button
           className="p-2.25 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl text-gray-400 relative transition-colors cursor-pointer"
           title="Notifications"

@@ -51,7 +51,7 @@ export default function MobileDrawer() {
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 left-0 bottom-0 w-[80%] max-w-[320px] bg-background border-r border-white/10 z-[101] md:hidden flex flex-col p-6 shadow-2xl"
+            className="fixed top-0 left-0 bottom-0 w-[280px] bg-background border-r border-white/10 z-[101] md:hidden flex flex-col p-6 shadow-2xl"
           >
             <div className="flex items-center justify-between mb-10">
               <div className="flex items-center gap-3">

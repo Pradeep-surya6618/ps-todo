@@ -35,13 +35,34 @@ export default function Sidebar() {
   return (
     <aside
       className={cn(
-        "hidden md:flex flex-col glass border-r border-border h-screen sticky top-0 transition-all duration-500 ease-in-out z-50 bg-card",
-        isSidebarCollapsed ? "w-[70px]" : "w-64",
+        "hidden md:flex flex-col glass border-r border-border h-screen sticky top-0 transition-all duration-500 ease-in-out z-50 bg-card relative overflow-hidden",
+        isSidebarCollapsed ? "w-[70px]" : "w-56",
       )}
     >
+      {/* Animated Space Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Stars */}
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={`star-${i}`}
+            className="absolute w-1 h-1 bg-foreground/40 dark:bg-white/60 rounded-full animate-pulse-slow"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              opacity: Math.random() * 0.6 + 0.4,
+            }}
+          />
+        ))}
+
+        {/* Floating Gradient Orbs */}
+        <div className="absolute top-20 right-4 w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 blur-2xl animate-float" />
+        <div className="absolute bottom-32 left-4 w-32 h-32 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-2xl animate-float-delayed" />
+      </div>
+
       <div
         className={cn(
-          "h-20 flex items-center relative overflow-visible transition-all duration-500",
+          "h-20 flex items-center relative overflow-visible transition-all duration-500 z-10",
           isSidebarCollapsed ? "justify-center p-4" : "justify-start px-6",
         )}
       >
@@ -75,20 +96,9 @@ export default function Sidebar() {
             SunMoonie
           </span>
         </div>
-        <button
-          onClick={toggleSidebar}
-          className="p-1.5 hover:bg-primary/10 text-primary rounded-full absolute right-[-14px] top-7 bg-background border border-border shadow-md transition-all duration-300 cursor-pointer z-[60]"
-          title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-        >
-          {isSidebarCollapsed ? (
-            <ChevronRight size={14} />
-          ) : (
-            <ChevronLeft size={14} />
-          )}
-        </button>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-2">
+      <nav className="flex-1 px-3 py-4 space-y-2 relative z-10">
         {menuItems.map((item) => (
           <Link
             key={item.href}
@@ -124,7 +134,7 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className="p-3 border-t border-border">
+      <div className="p-3 border-t border-border relative z-10">
         <button
           onClick={() => setLogoutDialogOpen(true)}
           title="Log Out"
