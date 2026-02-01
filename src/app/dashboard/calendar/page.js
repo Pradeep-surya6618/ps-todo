@@ -5,23 +5,15 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import Calendar from "@/components/calendar/Calendar";
 import EventDialog from "@/components/calendar/EventDialog";
 import DeleteConfirmationDialog from "@/components/calendar/DeleteConfirmationDialog";
-import {
-  LayoutGrid,
-  List,
-  Plus,
-  MoreVertical,
-  Trash2,
-  Edit2,
-  Clock,
-} from "lucide-react";
-import { format, isSameDay } from "date-fns";
+import { LayoutGrid, List, Plus, Trash2, Edit2, Clock } from "lucide-react";
+import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSnackbar } from "notistack";
 
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState("list"); // 'list' or 'grid'
+  const [viewMode, setViewMode] = useState("grid");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -164,7 +156,7 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          <AnimatePresence>
+          <AnimatePresence mode="popLayout">
             {isLoading ? (
               <div className="flex flex-col items-center justify-center p-12">
                 <div className="w-8 h-8 border-3 border-primary/20 border-t-primary rounded-full animate-spin" />
@@ -172,67 +164,88 @@ export default function CalendarPage() {
             ) : filteredEvents.length > 0 ? (
               <motion.div
                 key={`${selectedDate.toDateString()}-${viewMode}`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 className={
                   viewMode === "grid"
-                    ? "grid grid-cols-2 gap-3"
+                    ? "grid grid-cols-2 sm:grid-cols-3 gap-3"
                     : "flex flex-col gap-3"
                 }
               >
                 {filteredEvents.map((event) => (
                   <motion.div
                     key={event._id}
-                    layout
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.95, opacity: 0 }}
                     className={`
-                      relative glass p-4 md:p-5 rounded-2xl group border-l-4 shadow-lg
-                      ${viewMode === "grid" ? "h-32 md:h-36 flex flex-col justify-between" : "flex items-center justify-between"}
+                      group relative overflow-hidden backdrop-blur-sm
+                      rounded-2xl hover:shadow-lg transition-all duration-300
+                      p-3 flex flex-col h-auto min-h-[120px]
                     `}
-                    style={{ borderLeftColor: event.color }}
+                    style={{
+                      backgroundColor: `${event.color}10`,
+                      border: `1px solid ${event.color}25`,
+                    }}
                   >
-                    <div className="space-y-1 flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="text-[9px] md:text-[10px] font-black uppercase tracking-widest px-1.5 md:px-2 py-0.5 rounded-md bg-opacity-10"
-                          style={{
-                            color: event.color,
-                            backgroundColor: `${event.color}1A`,
+                    {/* Consistent Internal Layout for both Grid and List */}
+
+                    {/* Row 1: Chip and Actions */}
+                    <div className="flex items-center justify-between mb-2 w-full">
+                      <span
+                        className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md"
+                        style={{
+                          color: event.color,
+                          backgroundColor: `${event.color}20`,
+                          border: `1px solid ${event.color}30`,
+                        }}
+                      >
+                        {event.type}
+                      </span>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingEvent(event);
+                            setIsDialogOpen(true);
                           }}
+                          className="p-1 hover:bg-black/5 rounded-md text-gray-400 hover:text-foreground transition-colors"
                         >
-                          {event.type}
-                        </span>
+                          <Edit2 size={12} />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRequestDelete(event._id);
+                          }}
+                          className="p-1 hover:bg-red-500/10 rounded-md text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 size={12} />
+                        </button>
                       </div>
-                      <h4 className="font-bold text-foreground text-sm md:text-lg leading-tight truncate">
-                        {event.title}
-                      </h4>
-                      {event.description && viewMode === "list" && (
-                        <p className="text-xs md:text-sm text-gray-400 dark:text-gray-400 font-medium truncate">
-                          {event.description}
-                        </p>
-                      )}
                     </div>
 
-                    <div
-                      className={`flex gap-1 md:gap-2 shrink-0 ${viewMode === "grid" ? "justify-end mt-1.5" : "ml-3 md:ml-4"}`}
-                    >
-                      <button
-                        onClick={() => {
-                          setEditingEvent(event);
-                          setIsDialogOpen(true);
-                        }}
-                        className="p-1.5 md:p-2.5 hover:bg-primary/10 rounded-lg md:rounded-xl text-gray-500 hover:text-primary transition-all duration-200"
-                        title="Edit event"
-                      >
-                        <Edit2 className="w-4 h-4 md:w-[18px] md:h-[18px]" />
-                      </button>
-                      <button
-                        onClick={() => onRequestDelete(event._id)}
-                        className="p-1.5 md:p-2.5 hover:bg-red-500/10 rounded-lg md:rounded-xl text-gray-500 hover:text-red-500 transition-all duration-200"
-                        title="Delete event"
-                      >
-                        <Trash2 className="w-4 h-4 md:w-[18px] md:h-[18px]" />
-                      </button>
+                    {/* Row 2: Title */}
+                    <h4 className="font-bold text-sm text-foreground leading-tight line-clamp-2 mb-1 w-full">
+                      {event.title}
+                    </h4>
+
+                    {/* Row 3: Description */}
+                    <div className="flex-1 min-h-0 w-full mb-1">
+                      {event.description ? (
+                        <p className="text-[10px] text-muted-foreground font-medium line-clamp-2 leading-relaxed opacity-80">
+                          {event.description}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    {/* Row 4: Date */}
+                    <div className="pt-2 border-t border-black/5 flex items-center mt-auto w-full">
+                      <span className="text-[10px] font-bold text-gray-400 flex items-center gap-1 opacity-80">
+                        <Clock size={10} />
+                        {format(new Date(event.date), "h:mm a")}
+                      </span>
                     </div>
                   </motion.div>
                 ))}
