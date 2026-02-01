@@ -2,7 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Calendar as CalendarIcon, Type, AlignLeft } from "lucide-react";
+import {
+  X,
+  Calendar as CalendarIcon,
+  Type,
+  AlignLeft,
+  Tag,
+  Palette,
+} from "lucide-react";
 import { format } from "date-fns";
 
 export default function EventDialog({
@@ -16,18 +23,29 @@ export default function EventDialog({
   const [description, setDescription] = useState("");
   const [type, setType] = useState("note");
   const [color, setColor] = useState("#ff2e63");
+  const [customCategory, setCustomCategory] = useState("");
+
+  const standardTypes = ["note", "birthday", "task"];
 
   useEffect(() => {
     if (editingEvent) {
       setTitle(editingEvent.title);
       setDescription(editingEvent.description || "");
-      setType(editingEvent.type);
       setColor(editingEvent.color);
+
+      if (standardTypes.includes(editingEvent.type)) {
+        setType(editingEvent.type);
+        setCustomCategory("");
+      } else {
+        setType("other");
+        setCustomCategory(editingEvent.type);
+      }
     } else {
       setTitle("");
       setDescription("");
       setType("note");
       setColor("#ff2e63");
+      setCustomCategory("");
     }
   }, [editingEvent, isOpen]);
 
@@ -35,10 +53,15 @@ export default function EventDialog({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Determine the final type and color
+    const finalType =
+      type === "other" ? customCategory.trim() || "Event" : type;
+
     onSave({
       title,
       description,
-      type,
+      type: finalType,
       color,
       date: selectedDate,
       _id: editingEvent?._id,
@@ -67,7 +90,7 @@ export default function EventDialog({
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="relative w-full max-w-md bg-card border border-border rounded-[2rem] sm:rounded-[2.5rem] p-5 md:p-8 shadow-2xl overflow-hidden"
+          className="relative w-full max-w-md bg-card border border-border rounded-[2rem] sm:rounded-[2.5rem] p-5 md:p-8 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
         >
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <h2 className="text-xl md:text-2xl font-black text-foreground">
@@ -82,6 +105,7 @@ export default function EventDialog({
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+            {/* Title Input */}
             <div className="space-y-1">
               <label className="text-[10px] md:text-xs font-bold text-primary uppercase ml-1">
                 Event Title
@@ -99,6 +123,7 @@ export default function EventDialog({
               </div>
             </div>
 
+            {/* Description Input */}
             <div className="space-y-1">
               <label className="text-[10px] md:text-xs font-bold text-primary uppercase ml-1">
                 Description (Optional)
@@ -114,6 +139,7 @@ export default function EventDialog({
               </div>
             </div>
 
+            {/* Category Selection */}
             <div className="space-y-1">
               <label className="text-[10px] md:text-xs font-bold text-primary uppercase ml-1">
                 Event Category
@@ -125,7 +151,17 @@ export default function EventDialog({
                     type="button"
                     onClick={() => {
                       setType(t.id);
-                      setColor(t.color);
+                      // Only set standard colors if switching to standard types
+                      // If 'other', we might want to keep the current selection or default to orange
+                      if (t.id !== "other") {
+                        setColor(t.color);
+                      } else if (
+                        t.id === "other" &&
+                        standardTypes.includes(type)
+                      ) {
+                        // If switching TO other FROM standard, set to the 'other' default
+                        setColor(t.color);
+                      }
                     }}
                     className={`
                       flex items-center gap-2 p-2.5 md:p-3 rounded-xl md:rounded-2xl border transition-all
@@ -134,7 +170,9 @@ export default function EventDialog({
                   >
                     <div
                       className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full"
-                      style={{ backgroundColor: t.color }}
+                      style={{
+                        backgroundColor: t.id === "other" ? color : t.color,
+                      }}
                     />
                     <span
                       className={`text-xs md:text-sm font-bold ${type === t.id ? "text-primary" : "text-gray-500"}`}
@@ -146,6 +184,62 @@ export default function EventDialog({
               </div>
             </div>
 
+            {/* Custom Category Options (Only if 'other' is selected) */}
+            <AnimatePresence>
+              {type === "other" && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden space-y-4"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    {/* Custom Category Name */}
+                    <div className="space-y-1">
+                      <label className="text-[10px] md:text-xs font-bold text-primary uppercase ml-1">
+                        Category Name
+                      </label>
+                      <div className="relative">
+                        <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <input
+                          value={customCategory}
+                          onChange={(e) => setCustomCategory(e.target.value)}
+                          placeholder="e.g. Meeting"
+                          className="w-full h-11 pl-10 pr-4 bg-auth-input-bg border border-auth-input-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-primary transition-colors text-foreground font-bold text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Custom Color Picker */}
+                    <div className="space-y-1">
+                      <label className="text-[10px] md:text-xs font-bold text-primary uppercase ml-1">
+                        Category Color
+                      </label>
+                      <div className="relative h-11 bg-auth-input-bg border border-auth-input-border rounded-xl flex items-center px-4 hover:border-primary transition-colors group cursor-pointer">
+                        <Palette className="text-gray-400 w-4 h-4 mr-3" />
+                        <div className="flex-1 flex items-center gap-2">
+                          <div
+                            className="w-6 h-6 rounded-full border border-black/10 shadow-sm"
+                            style={{ backgroundColor: color }}
+                          />
+                          <span className="text-sm font-medium text-gray-500 uppercase">
+                            {color}
+                          </span>
+                        </div>
+                        <input
+                          type="color"
+                          value={color}
+                          onChange={(e) => setColor(e.target.value)}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Date Display */}
             <div className="flex items-center gap-2 p-3 md:p-4 bg-primary/5 rounded-xl md:rounded-2xl text-primary mb-2">
               <CalendarIcon className="w-4 h-4 md:w-[18px] md:h-[18px]" />
               <span className="text-xs md:text-sm font-black">
@@ -153,6 +247,7 @@ export default function EventDialog({
               </span>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               className="w-full h-12 md:h-14 bg-primary text-white rounded-xl md:rounded-2xl font-black text-base md:text-lg shadow-lg shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all"

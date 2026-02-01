@@ -21,7 +21,6 @@ const CalendarEventSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["note", "birthday", "task", "other"],
       default: "note",
     },
     color: {

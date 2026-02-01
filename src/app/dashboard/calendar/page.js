@@ -210,7 +210,7 @@ export default function CalendarPage() {
                             setEditingEvent(event);
                             setIsDialogOpen(true);
                           }}
-                          className="p-1 hover:bg-black/5 rounded-md text-gray-400 hover:text-foreground transition-colors"
+                          className="p-1 hover:bg-black/5 rounded-md text-gray-400 hover:text-foreground transition-colors cursor-pointer"
                         >
                           <Edit2 size={12} />
                         </button>
@@ -219,7 +219,7 @@ export default function CalendarPage() {
                             e.stopPropagation();
                             onRequestDelete(event._id);
                           }}
-                          className="p-1 hover:bg-red-500/10 rounded-md text-gray-400 hover:text-red-500 transition-colors"
+                          className="p-1 hover:bg-red-500/10 rounded-md text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
                         >
                           <Trash2 size={12} />
                         </button>
