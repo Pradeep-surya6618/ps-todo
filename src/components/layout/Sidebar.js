@@ -4,14 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
+  FileText,
   Calendar,
-  CheckCircle2,
+  Activity,
+  User,
   Settings,
   LogOut,
   ChevronLeft,
   ChevronRight,
-  User,
-  ListTodo,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useNavStore } from "@/store/useNavStore";
@@ -21,10 +21,10 @@ import { useState } from "react";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: Calendar, label: "Upcoming", href: "/dashboard/upcoming" },
-  { icon: CheckCircle2, label: "Completed", href: "/dashboard/completed" },
+  { icon: FileText, label: "Notes", href: "/dashboard/notes" },
+  { icon: Calendar, label: "Calendar", href: "/dashboard/calendar" },
+  { icon: Activity, label: "Cycle Tracker", href: "/dashboard/cycle" },
   { icon: User, label: "Profile", href: "/dashboard/profile" },
-  { icon: Settings, label: "Settings", href: "/dashboard/settings" },
 ];
 
 export default function Sidebar() {
@@ -35,75 +35,116 @@ export default function Sidebar() {
   return (
     <aside
       className={cn(
-        "hidden md:flex flex-col glass border-r border-black/5 dark:border-white/5 h-screen sticky top-0 transition-all duration-300 ease-in-out z-50 transition-colors duration-500",
-        isSidebarCollapsed ? "w-20" : "w-72",
+        "hidden md:flex flex-col glass border-r border-border h-screen sticky top-0 transition-all duration-500 ease-in-out z-50 bg-card",
+        isSidebarCollapsed ? "w-[70px]" : "w-64",
       )}
     >
-      <div className="p-6 h-20 flex items-center justify-between overflow-hidden">
+      <div
+        className={cn(
+          "h-20 flex items-center relative overflow-visible transition-all duration-500",
+          isSidebarCollapsed ? "justify-center p-4" : "justify-start px-6",
+        )}
+      >
         <div
           className={cn(
-            "flex items-center gap-3 transition-opacity duration-300",
-            isSidebarCollapsed && "opacity-0 invisible",
+            "flex items-center transition-all duration-500 cursor-pointer",
+            isSidebarCollapsed ? "flex-col gap-0" : "flex-row gap-3",
           )}
+          title="SunMoonie Dashboard"
         >
-          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-primary/30 shrink-0">
+          <div
+            className={cn(
+              "transition-all duration-500 flex items-center justify-center",
+              isSidebarCollapsed ? "w-8 h-8" : "w-9 h-9",
+            )}
+          >
             <img
-              src="/icons/Moon.jpg"
-              alt="SunMoonie"
-              className="w-full h-full object-cover"
+              src="/icons/Logo.png"
+              alt="Logo"
+              className="w-full h-full object-contain"
             />
           </div>
-          <span className="text-xl font-black tracking-tighter text-foreground whitespace-nowrap">
-            SunMoonie.
+          <span
+            className={cn(
+              "font-black tracking-tighter text-foreground whitespace-nowrap transition-all duration-500 overflow-hidden",
+              isSidebarCollapsed
+                ? "w-0 opacity-0"
+                : "w-auto opacity-100 text-lg",
+            )}
+          >
+            SunMoonie
           </span>
         </div>
         <button
           onClick={toggleSidebar}
-          className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl text-gray-400 absolute right-[-16px] top-6 bg-background border border-black/10 dark:border-white/10 shadow-lg"
+          className="p-1.5 hover:bg-primary/10 text-primary rounded-full absolute right-[-14px] top-7 bg-background border border-border shadow-md transition-all duration-300 cursor-pointer z-[60]"
+          title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
         >
           {isSidebarCollapsed ? (
-            <ChevronRight size={16} />
+            <ChevronRight size={14} />
           ) : (
-            <ChevronLeft size={16} />
+            <ChevronLeft size={14} />
           )}
         </button>
       </div>
 
-      <nav className="flex-1 px-4 py-6 space-y-2">
+      <nav className="flex-1 px-3 py-4 space-y-2">
         {menuItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
+            title={item.label}
             className={cn(
-              "flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-300 font-bold tracking-tight relative group",
-              pathname === item.href
-                ? "bg-primary text-white shadow-xl shadow-primary/20"
+              "flex items-center px-3 py-3.5 rounded-2xl transition-all duration-300 font-bold tracking-tight relative group",
+              isSidebarCollapsed
+                ? "justify-center gap-0"
+                : "justify-start gap-3",
+              pathname === item.href ||
+                (item.href !== "/dashboard" && pathname.startsWith(item.href))
+                ? "bg-primary text-white shadow-lg shadow-primary/20"
                 : "text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground",
             )}
           >
-            <item.icon size={22} className="shrink-0" />
-            {!isSidebarCollapsed && (
-              <span className="text-sm">{item.label}</span>
-            )}
-            {isSidebarCollapsed && (
-              <div className="absolute left-20 bg-black dark:bg-gray-900 border border-black/10 dark:border-white/10 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-[100]">
-                {item.label}
-              </div>
-            )}
+            <item.icon
+              size={20}
+              className={cn(
+                "shrink-0 transition-transform duration-300 group-hover:scale-110",
+                isSidebarCollapsed && "mx-auto",
+              )}
+            />
+            <span
+              className={cn(
+                "text-xs transition-all duration-500 overflow-hidden whitespace-nowrap",
+                isSidebarCollapsed ? "w-0 opacity-0" : "w-auto opacity-100",
+              )}
+            >
+              {item.label}
+            </span>
           </Link>
         ))}
       </nav>
 
-      <div className="p-4 border-t border-black/5 dark:border-white/5">
+      <div className="p-3 border-t border-border">
         <button
           onClick={() => setIsLogoutDialogOpen(true)}
+          title="Log Out"
           className={cn(
-            "flex items-center gap-4 w-full px-4 py-4 rounded-2xl text-gray-500 hover:bg-red-500/10 hover:text-red-500 transition-all duration-300 font-bold",
-            isSidebarCollapsed && "justify-center",
+            "flex items-center w-full px-3 py-3.5 rounded-2xl text-primary hover:bg-red-500/10 hover:text-red-500 transition-all duration-300 font-bold cursor-pointer",
+            isSidebarCollapsed ? "justify-center gap-0" : "justify-start gap-3",
           )}
         >
-          <LogOut size={22} className="shrink-0" />
-          {!isSidebarCollapsed && <span className="text-sm">Log Out</span>}
+          <LogOut
+            size={20}
+            className={cn("shrink-0", isSidebarCollapsed && "mx-auto")}
+          />
+          <span
+            className={cn(
+              "text-xs transition-all duration-500 overflow-hidden whitespace-nowrap",
+              isSidebarCollapsed ? "w-0 opacity-0" : "w-auto opacity-100",
+            )}
+          >
+            Log Out
+          </span>
         </button>
       </div>
 

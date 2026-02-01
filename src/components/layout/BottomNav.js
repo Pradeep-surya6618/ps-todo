@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ListTodo, User, Calendar } from "lucide-react";
+import { Home, FileText, Calendar, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { name: "Home", icon: Home, href: "/dashboard" },
-  { name: "Upcoming", icon: Calendar, href: "/dashboard/upcoming" },
-  { name: "Tasks", icon: ListTodo, href: "/dashboard" },
-  { name: "Profile", icon: User, href: "/onboarding" },
+  { name: "Dashboard", icon: Home, href: "/dashboard" },
+  { name: "Notes", icon: FileText, href: "/dashboard/notes" },
+  { name: "Calendar", icon: Calendar, href: "/dashboard/calendar" },
+  { name: "Cycle Tracker", icon: Activity, href: "/dashboard/cycle" },
 ];
 
 export default function BottomNav() {
@@ -23,7 +23,8 @@ export default function BottomNav() {
           href={item.href}
           className={cn(
             "flex items-center justify-center p-3 rounded-xl transition-all duration-300",
-            pathname === item.href
+            pathname === item.href ||
+              (item.href !== "/dashboard" && pathname.startsWith(item.href))
               ? "bg-primary text-white scale-110 shadow-lg shadow-primary/30"
               : "text-gray-500 hover:text-foreground",
           )}

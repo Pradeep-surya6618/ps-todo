@@ -10,6 +10,7 @@ const FONTS = [
   { name: "Default (Inter)", value: "font-sans", class: "font-sans" },
   { name: "Serif", value: "font-serif", class: "font-serif" },
   { name: "Mono", value: "font-mono", class: "font-mono" },
+  { name: "Handwritten", value: "font-hand", class: "font-hand" },
 ];
 
 export default function SettingsDialog({ isOpen, onClose }) {
@@ -26,6 +27,7 @@ export default function SettingsDialog({ isOpen, onClose }) {
         "font-sans",
         "font-serif",
         "font-mono",
+        "font-hand",
       );
       document.documentElement.classList.add(savedFont);
       setActiveFont(savedFont);
@@ -38,6 +40,7 @@ export default function SettingsDialog({ isOpen, onClose }) {
       "font-sans",
       "font-serif",
       "font-mono",
+      "font-hand",
     );
     document.documentElement.classList.add(fontClass);
     localStorage.setItem("app-font", fontClass);

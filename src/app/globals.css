@@ -142,6 +142,20 @@ body {
   @apply fixed bottom-0 left-0 right-0 h-16 glass flex items-center justify-around z-50 rounded-t-2xl;
 }
 
+@utility font-hand {
+  font-family: var(--font-hand), cursive !important;
+}
+
+/* Global override when handwritten font is active */
+.font-hand {
+  font-family: var(--font-hand), cursive !important;
+  font-size: 1.15rem; /* Just Another Hand is naturally very small/thin */
+}
+
+.font-hand * {
+  font-family: inherit !important;
+}
+
 @layer utilities {
   .animate-fade-in {
     animation: fade-in 0.6s ease-out forwards;
