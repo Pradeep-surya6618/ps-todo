@@ -8,6 +8,7 @@ import BottomNav from "./BottomNav";
 import Header from "./Header";
 import MobileDrawer from "./MobileDrawer";
 import LogoutConfirmationDialog from "../LogoutConfirmationDialog";
+import PullToRefresh from "../PullToRefresh";
 import { useNavStore } from "@/store/useNavStore";
 import { cn } from "@/lib/utils";
 
@@ -39,19 +40,20 @@ export default function DashboardLayout({ children }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-background overflow-x-hidden">
+    <div className="flex h-dvh bg-background overflow-hidden">
       <Sidebar />
       <MobileDrawer />
 
       <main
         className={cn(
-          "flex-1 flex flex-col transition-all duration-300 min-h-screen",
+          "flex-1 flex flex-col transition-all duration-300 h-dvh overflow-y-auto",
           "md:max-w-none w-full",
         )}
       >
+        {/* <PullToRefresh /> */}
         <Header />
 
-        <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8 max-w-7xl mx-auto w-full">
+        <div className="flex-1 p-4 md:p-8 pb-24 md:pb-8 max-w-7xl mx-auto w-full overflow-y-auto">
           {children}
         </div>
 
