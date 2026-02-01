@@ -340,7 +340,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-20 relative">
+    <div className="min-h-screen bg-background text-foreground pb-2 relative">
       {/* Absolute Loading Overlay */}
       {isLoading && (
         <div className="fixed inset-0 z-[200] bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center space-y-4">
