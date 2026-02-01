@@ -21,7 +21,7 @@ export async function PATCH(req) {
       );
     }
 
-    const { bio, role, image, dob, gender, mobile, location } =
+    const { name, bio, role, image, dob, gender, mobile, location } =
       JSON.parse(rawBody);
     await dbConnect();
 
@@ -32,7 +32,17 @@ export async function PATCH(req) {
     );
     const user = await User.findOneAndUpdate(
       { $or: [{ _id: session.user.id }, { email: session.user.email }] },
-      { bio, role, image, dob, gender, mobile, location, isOnboarded: true },
+      {
+        name,
+        bio,
+        role,
+        image,
+        dob,
+        gender,
+        mobile,
+        location,
+        isOnboarded: true,
+      },
       { new: true },
     );
 

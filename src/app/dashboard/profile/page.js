@@ -65,6 +65,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const { data: session, update } = useSession();
   const [formData, setFormData] = useState({
+    name: "",
     bio: "",
     role: "",
     dob: "",
@@ -101,6 +102,7 @@ export default function ProfilePage() {
         ? new Date(session.user.dob).toISOString().split("T")[0]
         : "";
       setFormData({
+        name: session.user.name || "",
         bio: session.user.bio || "",
         role: session.user.role || "",
         dob: dobVal,
@@ -390,9 +392,21 @@ export default function ProfilePage() {
           </div>
 
           <div className="space-y-1">
-            <h2 className="text-2xl font-bold text-foreground">
-              {session?.user?.name}
-            </h2>
+            {isEditing ? (
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
+                className="text-2xl font-bold bg-transparent border-b-2 border-primary/50 text-foreground focus:outline-none focus:border-primary px-1"
+                placeholder="Your Name"
+              />
+            ) : (
+              <h2 className="text-2xl font-bold text-foreground">
+                {formData.name || session?.user?.name}
+              </h2>
+            )}
             <p className="text-sm font-medium text-primary uppercase tracking-wide">
               Active Member
             </p>
