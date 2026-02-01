@@ -625,9 +625,12 @@ export default function ProfilePage() {
                         <button
                           type="button"
                           onClick={() => changeMonth(-1)}
-                          className="p-1 hover:bg-white/10 rounded-full cursor-pointer"
+                          className="p-1 hover:bg-primary/10 dark:hover:bg-white/10 rounded-full cursor-pointer transition-colors"
                         >
-                          <ChevronDown className="rotate-90" size={20} />
+                          <ChevronDown
+                            className="rotate-90 text-foreground"
+                            size={20}
+                          />
                         </button>
                         <h4 className="font-bold text-foreground">
                           {MONTHS[currentDate.getMonth()]}{" "}
@@ -636,16 +639,19 @@ export default function ProfilePage() {
                         <button
                           type="button"
                           onClick={() => changeMonth(1)}
-                          className="p-1 hover:bg-white/10 rounded-full cursor-pointer"
+                          className="p-1 hover:bg-primary/10 dark:hover:bg-white/10 rounded-full cursor-pointer transition-colors"
                         >
-                          <ChevronDown className="-rotate-90" size={20} />
+                          <ChevronDown
+                            className="-rotate-90 text-foreground"
+                            size={20}
+                          />
                         </button>
                       </div>
                       <div className="grid grid-cols-7 mb-2">
                         {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
                           <div
                             key={d}
-                            className="text-center text-xs text-gray-500 py-1"
+                            className="text-center text-xs text-slate-500 dark:text-gray-400 font-bold py-1"
                           >
                             {d}
                           </div>
@@ -659,12 +665,12 @@ export default function ProfilePage() {
                                 type="button"
                                 onClick={() => handleDateSelect(day)}
                                 className={cn(
-                                  "w-full h-full rounded-full text-sm flex items-center justify-center hover:bg-white/10 cursor-pointer",
+                                  "w-full h-full rounded-full text-sm font-medium flex items-center justify-center hover:bg-primary/10 dark:hover:bg-white/10 cursor-pointer transition-all",
                                   selectedDate?.getDate() === day &&
                                     selectedDate?.getMonth() ===
                                       currentDate.getMonth()
-                                    ? "bg-primary text-white"
-                                    : "text-gray-300",
+                                    ? "bg-primary text-white shadow-lg shadow-primary/30"
+                                    : "text-slate-700 dark:text-gray-300",
                                 )}
                               >
                                 {day}
