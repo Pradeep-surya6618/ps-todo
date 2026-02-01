@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Calendar from "@/components/calendar/Calendar";
 import EventDialog from "@/components/calendar/EventDialog";
+import DeleteConfirmationDialog from "@/components/calendar/DeleteConfirmationDialog";
 import {
   LayoutGrid,
   List,
@@ -24,6 +25,11 @@ export default function CalendarPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [deleteConfirmation, setDeleteConfirmation] = useState({
+    isOpen: false,
+    eventId: null,
+  });
+  const [isDeleting, setIsDeleting] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
@@ -74,17 +80,24 @@ export default function CalendarPage() {
     }
   };
 
-  const handleDeleteEvent = async (id) => {
-    if (!confirm("Are you sure you want to delete this event?")) return;
+  const onRequestDelete = (id) => {
+    setDeleteConfirmation({ isOpen: true, eventId: id });
+  };
 
+  const handleConfirmDelete = async () => {
+    const id = deleteConfirmation.eventId;
+    setIsDeleting(true);
     try {
       const res = await fetch(`/api/calendar/${id}`, { method: "DELETE" });
       if (res.ok) {
-        enqueueSnackbar("Event deleted", { variant: "info" });
+        enqueueSnackbar("Event deleted successfully", { variant: "success" });
         fetchEvents();
+        setDeleteConfirmation({ isOpen: false, eventId: null });
       }
     } catch (error) {
       enqueueSnackbar("Failed to delete event", { variant: "error" });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -99,7 +112,7 @@ export default function CalendarPage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto p-4 pb-24 space-y-6">
+      <div className="max-w-4xl mx-auto p-4 pb-8 space-y-6">
         {/* Header Section */}
         <div className="flex items-center justify-between">
           <div>
@@ -214,7 +227,7 @@ export default function CalendarPage() {
                         <Edit2 className="w-4 h-4 md:w-[18px] md:h-[18px]" />
                       </button>
                       <button
-                        onClick={() => handleDeleteEvent(event._id)}
+                        onClick={() => onRequestDelete(event._id)}
                         className="p-1.5 md:p-2.5 hover:bg-red-500/10 rounded-lg md:rounded-xl text-gray-500 hover:text-red-500 transition-all duration-200"
                         title="Delete event"
                       >
@@ -255,6 +268,15 @@ export default function CalendarPage() {
           onSave={handleSaveEvent}
           selectedDate={selectedDate}
           editingEvent={editingEvent}
+        />
+
+        <DeleteConfirmationDialog
+          isOpen={deleteConfirmation.isOpen}
+          onClose={() =>
+            setDeleteConfirmation({ isOpen: false, eventId: null })
+          }
+          onConfirm={handleConfirmDelete}
+          isDeleting={isDeleting}
         />
       </div>
     </DashboardLayout>
