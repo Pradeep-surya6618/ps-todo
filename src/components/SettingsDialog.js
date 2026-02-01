@@ -70,7 +70,7 @@ export default function SettingsDialog({ isOpen, onClose }) {
           <h3 className="text-xl font-bold text-foreground">Settings</h3>
           <button
             onClick={onClose}
-            className="p-2 bg-overlay hover:bg-black/10 dark:hover:bg-white/10 rounded-full transition-colors text-gray-500 dark:text-gray-400 hover:text-foreground"
+            className="p-2 bg-overlay hover:bg-black/10 dark:hover:bg-white/10 rounded-full transition-colors text-gray-500 dark:text-gray-400 hover:text-foreground cursor-pointer"
           >
             <X size={20} />
           </button>
@@ -96,7 +96,7 @@ export default function SettingsDialog({ isOpen, onClose }) {
               </div>
               <button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="relative w-12 h-7 bg-overlay border border-border rounded-full transition-colors duration-300 data-[state=checked]:bg-primary"
+                className="relative w-12 h-7 bg-overlay border border-border rounded-full transition-colors duration-300 data-[state=checked]:bg-primary cursor-pointer"
                 data-state={theme === "dark" ? "checked" : "unchecked"}
               >
                 <div
@@ -120,7 +120,7 @@ export default function SettingsDialog({ isOpen, onClose }) {
                   key={font.value}
                   onClick={() => handleFontChange(font.class)}
                   className={cn(
-                    "w-full flex items-center justify-between p-4 rounded-2xl border transition-all duration-200",
+                    "w-full flex items-center justify-between p-4 rounded-2xl border transition-all duration-200 cursor-pointer",
                     activeFont === font.class
                       ? "bg-primary/10 border-primary/50 text-foreground"
                       : "bg-overlay border-transparent hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400",
@@ -159,7 +159,7 @@ export default function SettingsDialog({ isOpen, onClose }) {
                   window.dispatchEvent(new Event("open-logout-dialog"));
                 }
               }}
-              className="w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 p-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all"
+              className="w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 p-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
               <LogOut size={20} />
               Log Out

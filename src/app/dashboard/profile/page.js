@@ -355,14 +355,14 @@ export default function ProfilePage() {
       <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-black/5 dark:border-white/5">
         <button
           onClick={() => router.back()}
-          className="p-2 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors text-primary"
+          className="p-2 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors text-primary cursor-pointer"
         >
           <ArrowLeft size={22} />
         </button>
         <h1 className="text-lg font-bold">My Profile</h1>
         <button
           onClick={() => setIsSettingsOpen(true)}
-          className="p-2 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors text-primary"
+          className="p-2 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors text-primary cursor-pointer"
         >
           <Settings size={22} />
         </button>

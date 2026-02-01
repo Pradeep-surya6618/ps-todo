@@ -48,7 +48,7 @@ export default function LogoutConfirmationDialog({ isOpen, onClose }) {
             <button
               onClick={onClose}
               disabled={isLoggingOut}
-              className="flex-1 py-3 px-4 rounded-xl bg-gray-100 dark:bg-white/5 text-foreground font-bold text-sm hover:bg-gray-200 dark:hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-3 px-4 rounded-xl bg-gray-100 dark:bg-white/5 text-foreground font-bold text-sm hover:bg-gray-200 dark:hover:bg-white/10 transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
               <X size={18} />
               Cancel
@@ -56,7 +56,7 @@ export default function LogoutConfirmationDialog({ isOpen, onClose }) {
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="flex-1 py-3 px-4 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold text-sm transition-colors shadow-lg shadow-red-500/20 flex items-center justify-center gap-2"
+              className="flex-1 py-3 px-4 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold text-sm transition-colors shadow-lg shadow-red-500/20 flex items-center justify-center gap-2 cursor-pointer"
             >
               {isLoggingOut ? (
                 "Signing out..."

@@ -42,21 +42,19 @@ export default function Header() {
           className="flex items-center gap-2 pl-1 cursor-pointer group"
           title="View Profile"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary p-0.5 shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all">
-            <div className="w-full h-full rounded-[10px] bg-background flex items-center justify-center text-primary font-black overflow-hidden">
-              {session?.user?.image ? (
-                <img
-                  src={session.user.image}
-                  alt="profile"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-sm">
-                  {session?.user?.name?.[0] || "U"}
-                </span>
-              )}
+          {session?.user?.image ? (
+            <div className="w-10 h-10 rounded-xl ring-2 ring-primary/60 group-hover:ring-primary shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all overflow-hidden">
+              <img
+                src={session.user.image}
+                alt="profile"
+                className="w-full h-full object-cover"
+              />
             </div>
-          </div>
+          ) : (
+            <div className="w-10 h-10 rounded-xl ring-2 ring-primary/60 group-hover:ring-primary shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all bg-background flex items-center justify-center text-primary font-black">
+              <span className="text-sm">{session?.user?.name?.[0] || "U"}</span>
+            </div>
+          )}
         </Link>
       </div>
     </header>
