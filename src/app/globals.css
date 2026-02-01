@@ -8,14 +8,18 @@
   --color-secondary: #8b5cf6;
   --color-accent: #ff2e63;
 
-  --color-card-light: rgba(255, 255, 255, 0.7);
-  --color-card-dark: rgba(20, 20, 20, 0.7);
+  --color-background: var(--background);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-overlay: var(--overlay);
 
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
 
   --animate-check-pop: check-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 @keyframes check-pop {
   0% {
@@ -93,15 +97,21 @@
 :root {
   --background: #fdf2f8;
   --foreground: #1e293b;
+  --card: #fdf2f8;
+  --border: rgba(0, 0, 0, 0.08);
+  --overlay: rgba(255, 255, 255, 0.6);
   --auth-input-bg: rgba(255, 255, 255, 0.5);
   --auth-input-border: rgba(255, 46, 99, 0.2);
   --google-btn-bg: #ffffff;
   --google-btn-text: #0f172a;
 }
 
-[data-theme="dark"] {
+.dark {
   --background: #000000; /* Pure Black */
   --foreground: #f8fafc;
+  --card: #0f0f0f;
+  --border: rgba(255, 255, 255, 0.08);
+  --overlay: rgba(255, 255, 255, 0.05);
   --auth-input-bg: rgba(255, 255, 255, 0.05);
   --auth-input-border: rgba(255, 46, 99, 0.1);
   --google-btn-bg: rgba(255, 255, 255, 0.05);
@@ -116,11 +126,11 @@ body {
 }
 
 @utility glass {
-  @apply backdrop-blur-md border border-black/10 dark:border-white/20 shadow-xl transition-colors duration-500;
+  @apply backdrop-blur-md border border-border shadow-xl transition-colors duration-500 bg-card;
 }
 
 @utility glass-dark {
-  @apply backdrop-blur-md border border-white/10 shadow-2xl;
+  @apply backdrop-blur-md border border-white/10 shadow-2xl bg-[#0f0f0f];
 }
 
 @utility bento-card {

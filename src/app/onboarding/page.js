@@ -19,12 +19,12 @@ import {
 import { cn } from "@/lib/utils";
 
 const AVATAR_OPTIONS = [
-  { src: "/avatars/boy1.png", gender: "Male" },
-  { src: "/avatars/girl1.png", gender: "Female" },
-  { src: "/avatars/boy2.png", gender: "Male" },
-  { src: "/avatars/girl2.png", gender: "Female" },
-  { src: "/avatars/boy3.png", gender: "Male" },
-  { src: "/avatars/girl3.png", gender: "Female" },
+  { src: "/assets/Boy-1.jpg", gender: "Male" },
+  { src: "/assets/Girl-1.jpg", gender: "Female" },
+  { src: "/assets/Boy-2.jpg", gender: "Male" },
+  { src: "/assets/Girl-2.jpg", gender: "Female" },
+  { src: "/assets/Boy-3.jpg", gender: "Male" },
+  { src: "/assets/Girl-3.jpg", gender: "Female" },
 ];
 
 /* Helper Functions for Calendar */
@@ -204,7 +204,7 @@ export default function Onboarding() {
       <div className="absolute top-[20%] left-[10%] w-[30%] h-[30%] bg-pink-500/5 dark:bg-pink-500/10 blur-[80px] rounded-full transition-opacity duration-1000 animate-pulse-slow" />
 
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center p-4 md:p-8 z-10 transition-colors duration-500">
+      <div className="flex-1 flex items-center justify-center px-4 pt-20 pb-4 md:p-8 z-10 transition-colors duration-500">
         <div className="w-full max-w-[600px] space-y-8 animate-slide-up">
           {/* Header */}
           <div className="text-center space-y-2 animate-fade-in-delayed">
@@ -329,23 +329,41 @@ export default function Onboarding() {
                 <label className="text-[13px] font-semibold text-gray-600 dark:text-gray-400 ml-1">
                   Date of Birth
                 </label>
-                <button
-                  type="button"
-                  onClick={() => setIsDateOpen(!isDateOpen)}
-                  className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-sm font-medium backdrop-blur-sm hover:border-primary/30 focus:scale-[1.01] flex items-center justify-start text-foreground cursor-pointer relative"
-                >
+                <div className="relative">
                   <Calendar
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/50"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 pointer-events-none"
                     size={18}
                   />
-                  <span
-                    className={
-                      formData.dob ? "text-foreground" : "text-gray-500"
-                    }
+                  <input
+                    type="text"
+                    value={formData.dob}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormData({ ...formData, dob: val });
+                      const date = new Date(val);
+                      if (!isNaN(date.getTime()) && val.length === 10) {
+                        setSelectedDate(date);
+                        setCurrentDate(date);
+                      }
+                    }}
+                    onClick={() => setIsDateOpen(true)}
+                    className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-xl py-3 pl-12 pr-10 outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-sm font-medium backdrop-blur-sm hover:border-primary/30 focus:scale-[1.01] text-foreground placeholder:text-gray-500"
+                    placeholder="YYYY-MM-DD"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsDateOpen(!isDateOpen)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors cursor-pointer"
                   >
-                    {formData.dob || "Select Date of Birth"}
-                  </span>
-                </button>
+                    <ChevronDown
+                      size={18}
+                      className={cn(
+                        "transition-transform duration-300",
+                        isDateOpen && "rotate-180",
+                      )}
+                    />
+                  </button>
+                </div>
 
                 {/* Custom Calendar Dropdown */}
                 {isDateOpen && (

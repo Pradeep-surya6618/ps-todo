@@ -10,12 +10,13 @@ export async function PATCH(req) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const { bio, role, image, dob, gender } = await req.json();
+    const { bio, role, image, dob, gender, mobile, location } =
+      await req.json();
     await dbConnect();
 
     const user = await User.findByIdAndUpdate(
       session.user.id,
-      { bio, role, image, dob, gender, isOnboarded: true },
+      { bio, role, image, dob, gender, mobile, location, isOnboarded: true },
       { new: true },
     );
 

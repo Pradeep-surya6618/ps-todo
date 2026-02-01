@@ -1,6 +1,7 @@
 "use client";
 
-import { Menu, Bell, Search, User, ListTodo } from "lucide-react";
+import Link from "next/link";
+import { Menu, Bell, Search } from "lucide-react";
 import { useNavStore } from "@/store/useNavStore";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useSession } from "next-auth/react";
@@ -53,29 +54,29 @@ export default function Header() {
 
         <div className="h-8 w-px bg-black/5 dark:bg-white/5 hidden md:block" />
 
-        <div className="flex items-center gap-3 pl-2">
+        <Link
+          href="/dashboard/profile"
+          className="flex items-center gap-3 pl-2 cursor-pointer group"
+        >
           <div className="text-right hidden sm:block">
-            <p className="text-xs font-black text-foreground leading-none">
+            <p className="text-xs font-black text-foreground leading-none group-hover:text-primary transition-colors">
               {session?.user?.name}
             </p>
-            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-none mt-1">
-              {session?.user?.isOnboarded ? "Premium User" : "New Member"}
-            </p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary p-0.5 shadow-lg shadow-primary/20">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary p-0.5 shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all">
             <div className="w-full h-full rounded-[10px] bg-background flex items-center justify-center text-primary font-black">
               {session?.user?.image ? (
                 <img
                   src={session.user.image}
                   alt="profile"
-                  className="w-full h-full rounded-[10px]"
+                  className="w-full h-full rounded-[10px] object-cover"
                 />
               ) : (
                 session?.user?.name?.[0] || "U"
               )}
             </div>
           </div>
-        </div>
+        </Link>
       </div>
     </header>
   );

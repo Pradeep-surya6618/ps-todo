@@ -33,6 +33,14 @@ const UserSchema = new mongoose.Schema(
       default: "",
     },
     role: String,
+    mobile: {
+      type: String,
+      default: "",
+    },
+    location: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true },
 );

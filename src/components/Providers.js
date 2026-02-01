@@ -7,7 +7,7 @@ import { SnackbarProvider } from "notistack";
 export function Providers({ children }) {
   return (
     <SessionProvider>
-      <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <SnackbarProvider
           maxSnack={3}
           anchorOrigin={{ vertical: "top", horizontal: "right" }}
