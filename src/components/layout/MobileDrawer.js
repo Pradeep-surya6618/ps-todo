@@ -29,8 +29,8 @@ const menuItems = [
 
 export default function MobileDrawer() {
   const pathname = usePathname();
-  const { isMobileDrawerOpen, toggleMobileDrawer } = useNavStore();
-  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+  const { isMobileDrawerOpen, toggleMobileDrawer, setLogoutDialogOpen } =
+    useNavStore();
 
   return (
     <AnimatePresence>
@@ -95,7 +95,7 @@ export default function MobileDrawer() {
 
             <div className="pt-6 border-t border-white/5 space-y-4">
               <button
-                onClick={() => setIsLogoutDialogOpen(true)}
+                onClick={() => setLogoutDialogOpen(true)}
                 className="flex items-center gap-4 w-full px-5 py-4 rounded-2xl text-red-500 hover:bg-red-500/10 transition-all duration-300 font-bold"
               >
                 <LogOut size={22} />
@@ -103,12 +103,6 @@ export default function MobileDrawer() {
               </button>
             </div>
           </motion.div>
-
-          {/* Logout Dialog */}
-          <LogoutConfirmationDialog
-            isOpen={isLogoutDialogOpen}
-            onClose={() => setIsLogoutDialogOpen(false)}
-          />
         </>
       )}
     </AnimatePresence>

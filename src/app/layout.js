@@ -24,8 +24,8 @@ export const metadata = {
     "SunMoonie: Harmonies your workflow between the energy of the sun and the calm of the moon. A premium, cosmic task management experience.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/icons/Moon.jpg",
-    apple: "/icons/Moon.jpg",
+    icon: "/icons/Logo.png",
+    apple: "/icons/Logo.png",
   },
 };
 

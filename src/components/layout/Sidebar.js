@@ -29,8 +29,8 @@ const menuItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { isSidebarCollapsed, toggleSidebar } = useNavStore();
-  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+  const { isSidebarCollapsed, toggleSidebar, setLogoutDialogOpen } =
+    useNavStore();
 
   return (
     <aside
@@ -126,7 +126,7 @@ export default function Sidebar() {
 
       <div className="p-3 border-t border-border">
         <button
-          onClick={() => setIsLogoutDialogOpen(true)}
+          onClick={() => setLogoutDialogOpen(true)}
           title="Log Out"
           className={cn(
             "flex items-center w-full px-3 py-3.5 rounded-2xl text-primary hover:bg-red-500/10 hover:text-red-500 transition-all duration-300 font-bold cursor-pointer",
@@ -148,10 +148,7 @@ export default function Sidebar() {
         </button>
       </div>
 
-      <LogoutConfirmationDialog
-        isOpen={isLogoutDialogOpen}
-        onClose={() => setIsLogoutDialogOpen(false)}
-      />
+      {/* Logout dialog removed from here, now rendered in DashboardLayout */}
     </aside>
   );
 }

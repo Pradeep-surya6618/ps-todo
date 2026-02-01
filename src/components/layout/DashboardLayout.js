@@ -7,6 +7,7 @@ import Sidebar from "./Sidebar";
 import BottomNav from "./BottomNav";
 import Header from "./Header";
 import MobileDrawer from "./MobileDrawer";
+import LogoutConfirmationDialog from "../LogoutConfirmationDialog";
 import { useNavStore } from "@/store/useNavStore";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +15,7 @@ export default function DashboardLayout({ children }) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
+  const { isLogoutDialogOpen, setLogoutDialogOpen } = useNavStore();
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -55,6 +57,11 @@ export default function DashboardLayout({ children }) {
 
         <BottomNav />
       </main>
+
+      <LogoutConfirmationDialog
+        isOpen={isLogoutDialogOpen}
+        onClose={() => setLogoutDialogOpen(false)}
+      />
     </div>
   );
 }
