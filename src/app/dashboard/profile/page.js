@@ -93,8 +93,10 @@ export default function ProfilePage() {
   const { enqueueSnackbar } = useSnackbar();
   const fileInputRef = useRef(null);
 
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
   useEffect(() => {
-    if (session?.user) {
+    if (session?.user && isInitialLoad) {
       const dobVal = session.user.dob
         ? new Date(session.user.dob).toISOString().split("T")[0]
         : "";
@@ -112,8 +114,9 @@ export default function ProfilePage() {
         setSelectedDate(date);
         setCurrentDate(date);
       }
+      setIsInitialLoad(false);
     }
-  }, [session]);
+  }, [session, isInitialLoad]);
 
   // Listener for logout from settings
   useEffect(() => {
@@ -131,24 +134,73 @@ export default function ProfilePage() {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 3 * 1024 * 1024) {
-        enqueueSnackbar("Image size must be less than 3MB", {
+      if (file.size > 2 * 1024 * 1024) {
+        // Strict 2MB to be safe with base64 overhead
+        enqueueSnackbar("Image size must be less than 2MB", {
           variant: "error",
         });
         return;
       }
       const reader = new FileReader();
+      reader.onloadstart = () => setIsLoading(true);
       reader.onloadend = () => {
+        setIsLoading(false);
         setSelectedAvatar(reader.result);
+        console.log("Image loaded, size:", reader.result.length);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSaveAvatar = () => {
-    if (selectedAvatar) {
-      setFormData({ ...formData, image: selectedAvatar });
-      setIsDialogOpen(false);
+  const handleSaveAvatar = async () => {
+    if (!selectedAvatar) return;
+
+    setIsLoading(true);
+    enqueueSnackbar("Updating profile picture...", { variant: "info" });
+
+    try {
+      // Direct API call for immediate update
+      const updatedData = {
+        ...formData,
+        image: selectedAvatar,
+      };
+
+      const res = await fetch("/api/user/onboard", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (res.ok) {
+        // Update local state
+        setFormData((prev) => ({ ...prev, image: selectedAvatar }));
+
+        // Sync session (exclude image string to keep token small)
+        const { image, ...minimalData } = updatedData;
+        await update({
+          ...minimalData,
+          lastUpdated: Date.now(),
+        });
+
+        enqueueSnackbar("Profile picture updated!", { variant: "success" });
+        setIsDialogOpen(false);
+        setIsEditing(false); // Reset editing state if it was triggered
+
+        // Force reload to sync Header/Sidebar
+        setTimeout(() => {
+          window.location.reload();
+        }, 800);
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        enqueueSnackbar(errorData.error || "Failed to update image", {
+          variant: "error",
+        });
+      }
+    } catch (err) {
+      console.error("Save avatar error:", err);
+      enqueueSnackbar("Error saving image", { variant: "error" });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -164,17 +216,19 @@ export default function ProfilePage() {
     const formattedDate = `${yyyy}-${mm}-${dd}`;
 
     setSelectedDate(newDate);
-    setFormData({ ...formData, dob: formattedDate });
+    setFormData((prev) => ({ ...prev, dob: formattedDate }));
     setIsDateOpen(false);
   };
 
   const changeMonth = (increment) => {
-    const newDate = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() + increment,
-      1,
-    );
-    setCurrentDate(newDate);
+    setCurrentDate((prev) => {
+      const nextDate = new Date(
+        prev.getFullYear(),
+        prev.getMonth() + increment,
+        1,
+      );
+      return nextDate;
+    });
   };
 
   const handleUpdateProfile = async (e) => {
@@ -182,24 +236,79 @@ export default function ProfilePage() {
     setIsLoading(true);
 
     try {
+      // Create the final payload, prioritizing the UI's selected image state
+      const updatedData = {
+        ...formData,
+        image: selectedAvatar || formData.image,
+      };
+
+      console.log(
+        "Initiating profile update. Payload fields:",
+        Object.keys(updatedData),
+      );
+      console.log(
+        "Image present:",
+        !!updatedData.image,
+        "Size:",
+        updatedData.image?.length || 0,
+      );
+
+      const payloadString = JSON.stringify(updatedData);
+      const payloadSize = new Blob([payloadString]).size;
+      console.log("Total payload size:", payloadSize, "bytes");
+
+      if (payloadSize > 4.5 * 1024 * 1024) {
+        enqueueSnackbar(
+          "Overall profile data is too large (max 3MB image allowed)",
+          {
+            variant: "error",
+          },
+        );
+        setIsLoading(false);
+        return;
+      }
+
       const res = await fetch("/api/user/onboard", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: payloadString,
       });
 
       if (res.ok) {
-        await update(formData);
+        console.log("API Success. Triggering session sync...");
+
+        // Trigger a session update without the image.
+        // auth-options.js is now configured to NOT store image in JWT.
+        const { image, ...minimalData } = formData;
+        await update({
+          ...minimalData,
+          lastUpdated: Date.now(),
+        });
+
         enqueueSnackbar("Profile updated successfully!", {
           variant: "success",
         });
+
         setIsEditing(false);
+
+        // Final force sync because next-auth state can be stubborn
+        setTimeout(() => {
+          window.location.reload();
+        }, 800);
       } else {
-        enqueueSnackbar("Failed to update profile", { variant: "error" });
+        const errorText = await res.text();
+        console.error("API Failure:", res.status, errorText);
+        let errorMessage = "Save failed";
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {}
+
+        enqueueSnackbar(errorMessage, { variant: "error" });
       }
     } catch (err) {
-      console.error(err);
-      enqueueSnackbar("Network error", { variant: "error" });
+      console.error("Network Exception:", err);
+      enqueueSnackbar("Network error: " + err.message, { variant: "error" });
     } finally {
       setIsLoading(false);
     }
@@ -227,7 +336,17 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-20">
+    <div className="min-h-screen bg-background text-foreground pb-20 relative">
+      {/* Absolute Loading Overlay */}
+      {isLoading && (
+        <div className="fixed inset-0 z-[200] bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center space-y-4">
+          <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+          <p className="text-white font-bold animate-pulse text-lg">
+            Saving your changes...
+          </p>
+        </div>
+      )}
+
       {/* Header */}
       <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-black/5 dark:border-white/5">
         <button
@@ -326,7 +445,10 @@ export default function ProfilePage() {
                     type="text"
                     value={formData.mobile}
                     onChange={(e) =>
-                      setFormData({ ...formData, mobile: e.target.value })
+                      setFormData((prev) => ({
+                        ...prev,
+                        mobile: e.target.value,
+                      }))
                     }
                     className="w-full bg-transparent border-b border-primary/50 text-sm font-medium focus:outline-none py-0.5"
                     placeholder="+1 234 567 890"
@@ -353,7 +475,10 @@ export default function ProfilePage() {
                     type="text"
                     value={formData.location}
                     onChange={(e) =>
-                      setFormData({ ...formData, location: e.target.value })
+                      setFormData((prev) => ({
+                        ...prev,
+                        location: e.target.value,
+                      }))
                     }
                     className="w-full bg-transparent border-b border-primary/50 text-sm font-medium focus:outline-none py-0.5"
                     placeholder="New York, USA"
@@ -380,7 +505,7 @@ export default function ProfilePage() {
                     type="text"
                     value={formData.role}
                     onChange={(e) =>
-                      setFormData({ ...formData, role: e.target.value })
+                      setFormData((prev) => ({ ...prev, role: e.target.value }))
                     }
                     className="w-full bg-transparent border-b border-primary/50 text-sm font-medium focus:outline-none py-0.5"
                     placeholder="e.g. Developer"
@@ -422,7 +547,7 @@ export default function ProfilePage() {
                         <button
                           key={opt}
                           onClick={() => {
-                            setFormData({ ...formData, gender: opt });
+                            setFormData((prev) => ({ ...prev, gender: opt }));
                             setIsGenderOpen(false);
                           }}
                           className="w-full text-left px-4 py-3 hover:bg-overlay text-sm font-medium transition-colors"
@@ -530,7 +655,7 @@ export default function ProfilePage() {
                 <textarea
                   value={formData.bio}
                   onChange={(e) =>
-                    setFormData({ ...formData, bio: e.target.value })
+                    setFormData((prev) => ({ ...prev, bio: e.target.value }))
                   }
                   className="w-full bg-overlay border border-border rounded-xl p-4 text-sm focus:outline-none focus:border-primary/50 min-h-[100px]"
                   placeholder="Write something about yourself..."
@@ -554,14 +679,24 @@ export default function ProfilePage() {
           <button
             onClick={handleUpdateProfile}
             disabled={isLoading}
-            className="w-full max-w-md bg-primary text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 active:scale-95 transition-all"
+            className={cn(
+              "w-full max-w-md text-white font-bold py-3.5 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95",
+              isLoading
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-primary shadow-primary/20 hover:shadow-primary/30",
+            )}
           >
             {isLoading ? (
-              <Loader2 className="animate-spin" />
+              <>
+                <Loader2 className="animate-spin" size={20} />
+                <span>Saving Profile...</span>
+              </>
             ) : (
-              <Save size={20} />
+              <>
+                <Save size={20} />
+                <span>Save Changes</span>
+              </>
             )}
-            Save Changes
           </button>
         </div>
       </div>
@@ -601,18 +736,18 @@ export default function ProfilePage() {
                     "border-primary/50 bg-primary/5",
                 )}
               >
-                {selectedAvatar?.startsWith("data:image") ? (
+                {selectedAvatar || formData.image ? (
                   <div className="w-full space-y-3">
                     <div className="w-20 h-20 mx-auto rounded-2xl overflow-hidden border-2 border-primary shadow-lg shadow-primary/20">
                       <img
-                        src={selectedAvatar}
+                        src={selectedAvatar || formData.image}
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <div>
                       <h4 className="font-bold text-sm text-primary">
-                        Previewing Upload
+                        Selected Image
                       </h4>
                       <p className="text-xs text-gray-400 mt-1">
                         Click to change image
@@ -702,10 +837,13 @@ export default function ProfilePage() {
               </button>
               <button
                 onClick={handleSaveAvatar}
-                disabled={!selectedAvatar}
-                className="flex-1 py-3 rounded-xl bg-primary text-white font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all disabled:opacity-50"
+                disabled={isLoading || !selectedAvatar}
+                className="flex-1 py-3 rounded-xl bg-primary text-white font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                Save Selected
+                {isLoading ? (
+                  <Loader2 className="animate-spin" size={16} />
+                ) : null}
+                {isLoading ? "Saving..." : "Save Selected"}
               </button>
             </div>
           </div>

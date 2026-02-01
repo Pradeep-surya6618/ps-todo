@@ -74,21 +74,34 @@ export const authOptions = {
         // Fetch fresh user data from DB to ensure sync
         try {
           await dbConnect();
-          const dbUser = await User.findById(token.sub);
+          console.log("Session callback: Looking up user with:", {
+            sub: token.sub,
+            email: token.email,
+          });
+          const dbUser = await User.findOne({
+            $or: [{ _id: token.sub }, { email: token.email }],
+          });
+
           if (dbUser) {
+            console.log(
+              "Session callback: User found in DB, updating session object.",
+            );
             session.user.isOnboarded = dbUser.isOnboarded;
             session.user.image = dbUser.image;
             session.user.role = dbUser.role;
             session.user.bio = dbUser.bio;
             session.user.dob = dbUser.dob;
             session.user.gender = dbUser.gender;
-            session.user.name = dbUser.name; // Keep name in sync too
+            session.user.name = dbUser.name;
             session.user.mobile = dbUser.mobile;
             session.user.location = dbUser.location;
           } else {
-            // Fallback to token if DB fetch fails or user weirdness
+            console.warn(
+              "Session callback: User NOT found in DB. Falling back to token.",
+            );
             session.user.isOnboarded = token.isOnboarded;
             session.user.image = token.image;
+            session.user.name = token.name;
             session.user.role = token.role;
             session.user.bio = token.bio;
             session.user.dob = token.dob;
@@ -97,10 +110,11 @@ export const authOptions = {
             session.user.location = token.location;
           }
         } catch (error) {
-          console.error("Error fetching user in session:", error);
+          console.error("Session callback error:", error);
           // Fallback to token
           session.user.isOnboarded = token.isOnboarded;
           session.user.image = token.image;
+          session.user.name = token.name;
           session.user.role = token.role;
           session.user.bio = token.bio;
           session.user.dob = token.dob;
@@ -115,7 +129,6 @@ export const authOptions = {
       if (user) {
         token.sub = user.id;
         token.isOnboarded = user.isOnboarded;
-        token.image = user.image;
         token.role = user.role;
         token.bio = user.bio;
         token.dob = user.dob;
@@ -125,16 +138,21 @@ export const authOptions = {
       }
       // Handle session updates (like after onboarding)
       if (trigger === "update") {
+        // Handle explicit field updates
         if (session?.isOnboarded !== undefined)
           token.isOnboarded = session.isOnboarded;
-        if (session?.image !== undefined) token.image = session.image;
         if (session?.role !== undefined) token.role = session.role;
         if (session?.bio !== undefined) token.bio = session.bio;
         if (session?.dob !== undefined) token.dob = session.dob;
         if (session?.gender !== undefined) token.gender = session.gender;
         if (session?.mobile !== undefined) token.mobile = session.mobile;
         if (session?.location !== undefined) token.location = session.location;
+        if (session?.name !== undefined) token.name = session.name;
+
+        // Force token change to trigger session refresh
+        token.lastUpdated = Date.now();
       }
+      console.log("Returning token:", token);
       return token;
     },
   },
