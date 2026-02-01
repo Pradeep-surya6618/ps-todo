@@ -23,6 +23,8 @@ import {
   Edit2,
   Globe,
   LogOut,
+  Users,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SettingsDialog from "@/components/SettingsDialog";
@@ -422,7 +424,7 @@ export default function ProfilePage() {
             <h3 className="font-bold text-foreground">Personal Information</h3>
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="text-xs font-bold text-primary hover:text-primary/80 flex items-center gap-1 px-3 py-1.5 bg-primary/10 rounded-full transition-colors"
+              className="text-xs font-bold text-primary hover:text-primary/80 flex items-center gap-1 px-3 py-1.5 bg-primary/10 rounded-full transition-colors cursor-pointer"
             >
               <Edit2 size={12} />
               {isEditing ? "Cancel" : "Edit"}
@@ -432,8 +434,8 @@ export default function ProfilePage() {
           <div className="p-6 space-y-1">
             {/* Email (Read Only) */}
             <div className="flex items-center gap-4 py-3 border-b border-border">
-              <div className="w-10 h-10 rounded-full bg-overlay flex items-center justify-center text-gray-500 dark:text-gray-400">
-                <Mail size={18} />
+              <div className="flex items-center justify-center text-primary">
+                <Mail size={20} />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-gray-500 font-medium uppercase mb-0.5">
@@ -446,9 +448,9 @@ export default function ProfilePage() {
             </div>
 
             {/* Mobile */}
-            <div className="flex items-center gap-4 py-3 border-b border-black/5 dark:border-white/5">
-              <div className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-gray-500 dark:text-gray-400">
-                <Phone size={18} />
+            <div className="flex items-center gap-4 py-3 border-b border-border">
+              <div className="flex items-center justify-center text-primary">
+                <Phone size={20} />
               </div>
               <div className="flex-1">
                 <p className="text-xs text-gray-500 font-medium uppercase mb-0.5">
@@ -476,9 +478,9 @@ export default function ProfilePage() {
             </div>
 
             {/* Location */}
-            <div className="flex items-center gap-4 py-3 border-b border-white/5">
-              <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400">
-                <MapPin size={18} />
+            <div className="flex items-center gap-4 py-3 border-b border-border">
+              <div className="flex items-center justify-center text-primary">
+                <MapPin size={20} />
               </div>
               <div className="flex-1">
                 <p className="text-xs text-gray-500 font-medium uppercase mb-0.5">
@@ -506,9 +508,9 @@ export default function ProfilePage() {
             </div>
 
             {/* Role / Job */}
-            <div className="flex items-center gap-4 py-3 border-b border-white/5">
-              <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400">
-                <Briefcase size={18} />
+            <div className="flex items-center gap-4 py-3">
+              <div className="flex items-center justify-center text-primary">
+                <Briefcase size={20} />
               </div>
               <div className="flex-1">
                 <p className="text-xs text-gray-500 font-medium uppercase mb-0.5">
@@ -541,8 +543,9 @@ export default function ProfilePage() {
           </div>
           <div className="p-6 space-y-6">
             {/* Gender */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-500 uppercase">
+            <div className="space-y-2 pb-6 border-b border-border">
+              <label className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-2">
+                <Users size={14} className="text-primary" />
                 Gender
               </label>
               {isEditing ? (
@@ -550,7 +553,7 @@ export default function ProfilePage() {
                   <button
                     type="button"
                     onClick={() => setIsGenderOpen(!isGenderOpen)}
-                    className="w-full flex items-center justify-between bg-overlay border border-border rounded-xl px-4 py-3 text-sm font-medium"
+                    className="w-full flex items-center justify-between bg-overlay border border-border rounded-xl px-4 py-3 text-sm font-medium cursor-pointer hover:border-primary/50 transition-colors"
                   >
                     {formData.gender || "Select Gender"}
                     <ChevronDown size={16} />
@@ -564,7 +567,7 @@ export default function ProfilePage() {
                             setFormData((prev) => ({ ...prev, gender: opt }));
                             setIsGenderOpen(false);
                           }}
-                          className="w-full text-left px-4 py-3 hover:bg-overlay text-sm font-medium transition-colors"
+                          className="w-full text-left px-4 py-3 hover:bg-overlay text-sm font-medium transition-colors cursor-pointer"
                         >
                           {opt}
                         </button>
@@ -580,20 +583,40 @@ export default function ProfilePage() {
             </div>
 
             {/* DOB */}
-            <div className="space-y-2 relative">
-              <label className="text-xs font-semibold text-gray-500 uppercase">
+            <div className="space-y-2 relative pb-6 border-b border-border">
+              <label className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-2">
+                <Calendar size={14} className="text-primary" />
                 Date of Birth
               </label>
               {isEditing ? (
                 <>
-                  <button
-                    type="button"
-                    onClick={() => setIsDateOpen(!isDateOpen)}
-                    className="w-full flex items-center justify-between bg-overlay border border-border rounded-xl px-4 py-3 text-sm font-medium"
-                  >
-                    {formData.dob || "YYYY-MM-DD"}
-                    <Calendar size={16} />
-                  </button>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={formData.dob}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData((prev) => ({ ...prev, dob: value }));
+                        // Try to parse and update selectedDate if valid
+                        if (value.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                          const parsedDate = new Date(value);
+                          if (!isNaN(parsedDate.getTime())) {
+                            setSelectedDate(parsedDate);
+                            setCurrentDate(parsedDate);
+                          }
+                        }
+                      }}
+                      placeholder="YYYY-MM-DD"
+                      className="w-full bg-overlay border border-border rounded-xl px-4 py-3 pr-10 text-sm font-medium focus:outline-none focus:border-primary/50 transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsDateOpen(!isDateOpen)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors cursor-pointer"
+                    >
+                      <Calendar size={16} />
+                    </button>
+                  </div>
                   {/* Reusing existing calendar logic visually but simplified wrapper */}
                   {isDateOpen && (
                     <div className="absolute bottom-full left-0 w-full md:w-[320px] mb-2 bg-background border border-border rounded-2xl shadow-2xl overflow-hidden z-[70] animate-scale-in p-4">
@@ -602,7 +625,7 @@ export default function ProfilePage() {
                         <button
                           type="button"
                           onClick={() => changeMonth(-1)}
-                          className="p-1 hover:bg-white/10 rounded-full"
+                          className="p-1 hover:bg-white/10 rounded-full cursor-pointer"
                         >
                           <ChevronDown className="rotate-90" size={20} />
                         </button>
@@ -613,7 +636,7 @@ export default function ProfilePage() {
                         <button
                           type="button"
                           onClick={() => changeMonth(1)}
-                          className="p-1 hover:bg-white/10 rounded-full"
+                          className="p-1 hover:bg-white/10 rounded-full cursor-pointer"
                         >
                           <ChevronDown className="-rotate-90" size={20} />
                         </button>
@@ -636,7 +659,7 @@ export default function ProfilePage() {
                                 type="button"
                                 onClick={() => handleDateSelect(day)}
                                 className={cn(
-                                  "w-full h-full rounded-full text-sm flex items-center justify-center hover:bg-white/10",
+                                  "w-full h-full rounded-full text-sm flex items-center justify-center hover:bg-white/10 cursor-pointer",
                                   selectedDate?.getDate() === day &&
                                     selectedDate?.getMonth() ===
                                       currentDate.getMonth()
@@ -662,7 +685,8 @@ export default function ProfilePage() {
 
             {/* Bio */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-500 uppercase">
+              <label className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-2">
+                <FileText size={14} className="text-primary" />
                 About Me
               </label>
               {isEditing ? (
@@ -845,7 +869,7 @@ export default function ProfilePage() {
             <div className="p-5 border-t border-black/5 dark:border-white/5 flex gap-3 bg-black/5 dark:bg-white/5">
               <button
                 onClick={() => setIsDialogOpen(false)}
-                className="flex-1 py-3 rounded-xl font-bold text-sm hover:bg-white/10 transition-colors text-gray-400"
+                className="flex-1 py-3 rounded-xl font-bold text-sm hover:bg-white/10 transition-colors text-gray-400 cursor-pointer"
               >
                 Cancel
               </button>
