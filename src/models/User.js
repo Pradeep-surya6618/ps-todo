@@ -41,6 +41,11 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    cycleConfig: {
+      periodStartDate: Date,
+      cycleLength: { type: Number, default: 28 },
+      periodLength: { type: Number, default: 5 },
+    },
   },
   { timestamps: true },
 );
