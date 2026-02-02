@@ -11,6 +11,7 @@ import LogoutConfirmationDialog from "../LogoutConfirmationDialog";
 import PullToRefresh from "../PullToRefresh";
 import { useNavStore } from "@/store/useNavStore";
 import { cn } from "@/lib/utils";
+import BodyScrollLock from "../BodyScrollLock";
 
 export default function DashboardLayout({ children }) {
   const { data: session, status } = useSession();
@@ -33,7 +34,8 @@ export default function DashboardLayout({ children }) {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="fixed inset-0 bg-background flex items-center justify-center z-[9999]">
+        <BodyScrollLock />
         <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
       </div>
     );
@@ -41,6 +43,7 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="fixed inset-0 flex bg-background overflow-hidden">
+      <BodyScrollLock />
       <Sidebar />
       <MobileDrawer />
 

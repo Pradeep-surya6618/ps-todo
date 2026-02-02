@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useSnackbar } from "notistack";
 import { Chrome, Heart } from "lucide-react";
 import { Suspense } from "react";
+import BodyScrollLock from "@/components/BodyScrollLock";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -48,6 +49,7 @@ function LoginForm() {
 
   return (
     <div className="fixed inset-0 bg-background text-foreground relative overflow-hidden transition-colors duration-500 flex flex-col">
+      <BodyScrollLock />
       {/* Fixed Logo & Brand - Top Left */}
       <div className="fixed top-0 left-0 z-50 p-4 md:p-6 animate-fade-in">
         <div className="flex items-center gap-2 group">
@@ -232,6 +234,7 @@ export default function Login() {
         </div>
       }
     >
+      <BodyScrollLock />
       <LoginForm />
     </Suspense>
   );
