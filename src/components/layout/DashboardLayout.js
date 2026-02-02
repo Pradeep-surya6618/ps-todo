@@ -53,7 +53,7 @@ export default function DashboardLayout({ children }) {
         {/* <PullToRefresh /> */}
         <Header />
 
-        <div className="flex-1 px-1 py-2 md:p-8 pb-24 md:pb-8 max-w-7xl mx-auto w-full overflow-y-auto">
+        <div className="flex-1 px-1 py-2 md:p-8 pb-24 md:pb-8 max-w-7xl mx-auto w-full overflow-y-auto no-scrollbar">
           {children}
         </div>
 

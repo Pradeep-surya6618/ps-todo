@@ -181,7 +181,7 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="flex min-h-[100dvh] bg-background text-foreground relative overflow-y-auto transition-colors duration-500">
+    <div className="h-dvh bg-background text-foreground relative overflow-hidden transition-colors duration-500 flex flex-col">
       {/* Fixed Logo & Brand - Top Left */}
       <div className="fixed top-0 left-0 z-50 p-4 md:p-6 animate-fade-in">
         <div className="flex items-center gap-2 group">
@@ -204,270 +204,272 @@ export default function Onboarding() {
       <div className="absolute top-[20%] left-[10%] w-[30%] h-[30%] bg-pink-500/5 dark:bg-pink-500/10 blur-[80px] rounded-full transition-opacity duration-1000 animate-pulse-slow" />
 
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center px-4 pt-20 pb-4 md:p-8 z-10 transition-colors duration-500">
-        <div className="w-full max-w-[600px] space-y-8 animate-slide-up">
-          {/* Header */}
-          <div className="text-center space-y-2 animate-fade-in-delayed">
-            <h1 className="text-3xl font-bold text-foreground leading-tight">
-              Let's set up your profile
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-              Customize your identity in the SunMoonie universe
-            </p>
-          </div>
-
-          <form onSubmit={handleOnboard} className="space-y-8">
-            {/* Profile Picture Section */}
-            <div className="flex flex-col items-center space-y-4">
-              <div className="relative group">
-                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-[var(--auth-input-border)] shadow-xl bg-[var(--auth-input-bg)] flex items-center justify-center">
-                  {formData.image ? (
-                    <img
-                      src={formData.image}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User size={48} className="text-gray-400" />
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsDialogOpen(true)}
-                  className="absolute bottom-0 right-0 p-2 bg-primary text-white rounded-full shadow-lg hover:scale-110 transition-transform cursor-pointer"
-                >
-                  <Camera size={18} />
-                </button>
-              </div>
-              <p className="text-xs text-gray-500 font-medium">
-                Click camera to upload or choose avatar
+      <div className="flex-1 overflow-y-auto no-scrollbar">
+        <div className="min-h-full flex items-center justify-center px-4 pt-24 pb-12 md:p-8 z-10 transition-colors duration-500">
+          <div className="w-full max-w-[600px] space-y-8 animate-slide-up">
+            {/* Header */}
+            <div className="text-center space-y-2 animate-fade-in-delayed">
+              <h1 className="text-3xl font-bold text-foreground leading-tight">
+                Let's set up your profile
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                Customize your identity in the SunMoonie universe
               </p>
             </div>
 
-            {/* Form Fields Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {/* Role */}
-              <div className="space-y-2">
-                <label className="text-[13px] font-semibold text-gray-600 dark:text-gray-400 ml-1">
-                  What do you do?
-                </label>
-                <div className="relative">
-                  <Briefcase
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/50"
-                    size={18}
-                  />
-                  <input
-                    type="text"
-                    value={formData.role}
-                    onChange={(e) =>
-                      setFormData({ ...formData, role: e.target.value })
-                    }
-                    className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-sm text-foreground font-medium backdrop-blur-sm hover:border-primary/30 focus:scale-[1.01]"
-                    placeholder="e.g. Designer"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Gender Custom Dropdown */}
-              <div className="space-y-2 relative">
-                <label className="text-[13px] font-semibold text-gray-600 dark:text-gray-400 ml-1">
-                  Gender
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setIsGenderOpen(!isGenderOpen)}
-                  onBlur={() => setTimeout(() => setIsGenderOpen(false), 200)}
-                  className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-sm font-medium backdrop-blur-sm hover:border-primary/30 focus:scale-[1.01] flex items-center justify-between text-foreground cursor-pointer"
-                >
-                  <span
-                    className={
-                      formData.gender ? "text-foreground" : "text-gray-500"
-                    }
-                  >
-                    {formData.gender || "Select Gender"}
-                  </span>
-                  <ChevronDown
-                    size={18}
-                    className={cn(
-                      "text-gray-500 transition-transform duration-300",
-                      isGenderOpen && "rotate-180",
+            <form onSubmit={handleOnboard} className="space-y-8">
+              {/* Profile Picture Section */}
+              <div className="flex flex-col items-center space-y-4">
+                <div className="relative group">
+                  <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-[var(--auth-input-border)] shadow-xl bg-[var(--auth-input-bg)] flex items-center justify-center">
+                    {formData.image ? (
+                      <img
+                        src={formData.image}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User size={48} className="text-gray-400" />
                     )}
-                  />
-                </button>
-
-                {/* Dropdown Menu */}
-                <div
-                  className={cn(
-                    "absolute top-[calc(100%+8px)] left-0 w-full bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-xl overflow-hidden transition-all duration-200 z-50 origin-top",
-                    isGenderOpen
-                      ? "opacity-100 scale-100 translate-y-0"
-                      : "opacity-0 scale-95 -translate-y-2 pointer-events-none",
-                  )}
-                >
-                  {["Male", "Female", "Other"].map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => {
-                        setFormData({ ...formData, gender: option });
-                        setIsGenderOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-primary/20 hover:text-primary transition-colors flex items-center justify-between group cursor-pointer"
-                    >
-                      {option}
-                      {formData.gender === option && (
-                        <ArrowRight size={14} className="text-primary" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Date of Birth - Custom Theme */}
-              <div className="space-y-2 relative">
-                <label className="text-[13px] font-semibold text-gray-600 dark:text-gray-400 ml-1">
-                  Date of Birth
-                </label>
-                <div className="relative">
-                  <Calendar
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 pointer-events-none"
-                    size={18}
-                  />
-                  <input
-                    type="text"
-                    value={formData.dob}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setFormData({ ...formData, dob: val });
-                      const date = new Date(val);
-                      if (!isNaN(date.getTime()) && val.length === 10) {
-                        setSelectedDate(date);
-                        setCurrentDate(date);
-                      }
-                    }}
-                    onClick={() => setIsDateOpen(true)}
-                    className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-xl py-3 pl-12 pr-10 outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-sm font-medium backdrop-blur-sm hover:border-primary/30 focus:scale-[1.01] text-foreground placeholder:text-gray-500"
-                    placeholder="YYYY-MM-DD"
-                  />
+                  </div>
                   <button
                     type="button"
-                    onClick={() => setIsDateOpen(!isDateOpen)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors cursor-pointer"
+                    onClick={() => setIsDialogOpen(true)}
+                    className="absolute bottom-0 right-0 p-2 bg-primary text-white rounded-full shadow-lg hover:scale-110 transition-transform cursor-pointer"
                   >
+                    <Camera size={18} />
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 font-medium">
+                  Click camera to upload or choose avatar
+                </p>
+              </div>
+
+              {/* Form Fields Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {/* Role */}
+                <div className="space-y-2">
+                  <label className="text-[13px] font-semibold text-gray-600 dark:text-gray-400 ml-1">
+                    What do you do?
+                  </label>
+                  <div className="relative">
+                    <Briefcase
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/50"
+                      size={18}
+                    />
+                    <input
+                      type="text"
+                      value={formData.role}
+                      onChange={(e) =>
+                        setFormData({ ...formData, role: e.target.value })
+                      }
+                      className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-sm text-foreground font-medium backdrop-blur-sm hover:border-primary/30 focus:scale-[1.01]"
+                      placeholder="e.g. Designer"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Gender Custom Dropdown */}
+                <div className="space-y-2 relative">
+                  <label className="text-[13px] font-semibold text-gray-600 dark:text-gray-400 ml-1">
+                    Gender
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsGenderOpen(!isGenderOpen)}
+                    onBlur={() => setTimeout(() => setIsGenderOpen(false), 200)}
+                    className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-sm font-medium backdrop-blur-sm hover:border-primary/30 focus:scale-[1.01] flex items-center justify-between text-foreground cursor-pointer"
+                  >
+                    <span
+                      className={
+                        formData.gender ? "text-foreground" : "text-gray-500"
+                      }
+                    >
+                      {formData.gender || "Select Gender"}
+                    </span>
                     <ChevronDown
                       size={18}
                       className={cn(
-                        "transition-transform duration-300",
-                        isDateOpen && "rotate-180",
+                        "text-gray-500 transition-transform duration-300",
+                        isGenderOpen && "rotate-180",
                       )}
                     />
                   </button>
+
+                  {/* Dropdown Menu */}
+                  <div
+                    className={cn(
+                      "absolute top-[calc(100%+8px)] left-0 w-full bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-xl overflow-hidden transition-all duration-200 z-50 origin-top",
+                      isGenderOpen
+                        ? "opacity-100 scale-100 translate-y-0"
+                        : "opacity-0 scale-95 -translate-y-2 pointer-events-none",
+                    )}
+                  >
+                    {["Male", "Female", "Other"].map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => {
+                          setFormData({ ...formData, gender: option });
+                          setIsGenderOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-primary/20 hover:text-primary transition-colors flex items-center justify-between group cursor-pointer"
+                      >
+                        {option}
+                        {formData.gender === option && (
+                          <ArrowRight size={14} className="text-primary" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Custom Calendar Dropdown */}
-                {isDateOpen && (
-                  <div className="absolute top-[calc(100%+8px)] left-0 w-full md:w-[320px] bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 animate-scale-in p-4">
-                    {/* Calendar Header */}
-                    <div className="flex items-center justify-between mb-4">
-                      <button
-                        type="button"
-                        onClick={() => changeMonth(-1)}
-                        className="p-1 hover:bg-white/10 rounded-full transition-colors"
-                      >
-                        <ChevronDown className="rotate-90" size={20} />
-                      </button>
-                      <h4 className="font-bold text-foreground">
-                        {MONTHS[currentDate.getMonth()]}{" "}
-                        {currentDate.getFullYear()}
-                      </h4>
-                      <button
-                        type="button"
-                        onClick={() => changeMonth(1)}
-                        className="p-1 hover:bg-white/10 rounded-full transition-colors"
-                      >
-                        <ChevronDown className="-rotate-90" size={20} />
-                      </button>
-                    </div>
-
-                    {/* Days Header */}
-                    <div className="grid grid-cols-7 mb-2">
-                      {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
-                        <div
-                          key={d}
-                          className="text-center text-xs text-gray-500 font-medium py-1"
-                        >
-                          {d}
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Days Grid */}
-                    <div className="grid grid-cols-7 gap-1">
-                      {days.map((day, i) => (
-                        <div key={i} className="aspect-square">
-                          {day && (
-                            <button
-                              type="button"
-                              onClick={() => handleDateSelect(day)}
-                              className={cn(
-                                "w-full h-full rounded-full text-sm font-medium transition-all hover:bg-white/10 flex items-center justify-center",
-                                selectedDate?.getDate() === day &&
-                                  selectedDate?.getMonth() ===
-                                    currentDate.getMonth() &&
-                                  selectedDate?.getFullYear() ===
-                                    currentDate.getFullYear()
-                                  ? "bg-primary text-white shadow-lg shadow-primary/30"
-                                  : "text-gray-300",
-                              )}
-                            >
-                              {day}
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+                {/* Date of Birth - Custom Theme */}
+                <div className="space-y-2 relative">
+                  <label className="text-[13px] font-semibold text-gray-600 dark:text-gray-400 ml-1">
+                    Date of Birth
+                  </label>
+                  <div className="relative">
+                    <Calendar
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 pointer-events-none"
+                      size={18}
+                    />
+                    <input
+                      type="text"
+                      value={formData.dob}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFormData({ ...formData, dob: val });
+                        const date = new Date(val);
+                        if (!isNaN(date.getTime()) && val.length === 10) {
+                          setSelectedDate(date);
+                          setCurrentDate(date);
+                        }
+                      }}
+                      onClick={() => setIsDateOpen(true)}
+                      className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-xl py-3 pl-12 pr-10 outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-sm font-medium backdrop-blur-sm hover:border-primary/30 focus:scale-[1.01] text-foreground placeholder:text-gray-500"
+                      placeholder="YYYY-MM-DD"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsDateOpen(!isDateOpen)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors cursor-pointer"
+                    >
+                      <ChevronDown
+                        size={18}
+                        className={cn(
+                          "transition-transform duration-300",
+                          isDateOpen && "rotate-180",
+                        )}
+                      />
+                    </button>
                   </div>
-                )}
+
+                  {/* Custom Calendar Dropdown */}
+                  {isDateOpen && (
+                    <div className="absolute top-[calc(100%+8px)] left-0 w-full md:w-[320px] bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 animate-scale-in p-4">
+                      {/* Calendar Header */}
+                      <div className="flex items-center justify-between mb-4">
+                        <button
+                          type="button"
+                          onClick={() => changeMonth(-1)}
+                          className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                        >
+                          <ChevronDown className="rotate-90" size={20} />
+                        </button>
+                        <h4 className="font-bold text-foreground">
+                          {MONTHS[currentDate.getMonth()]}{" "}
+                          {currentDate.getFullYear()}
+                        </h4>
+                        <button
+                          type="button"
+                          onClick={() => changeMonth(1)}
+                          className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                        >
+                          <ChevronDown className="-rotate-90" size={20} />
+                        </button>
+                      </div>
+
+                      {/* Days Header */}
+                      <div className="grid grid-cols-7 mb-2">
+                        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
+                          <div
+                            key={d}
+                            className="text-center text-xs text-gray-500 font-medium py-1"
+                          >
+                            {d}
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Days Grid */}
+                      <div className="grid grid-cols-7 gap-1">
+                        {days.map((day, i) => (
+                          <div key={i} className="aspect-square">
+                            {day && (
+                              <button
+                                type="button"
+                                onClick={() => handleDateSelect(day)}
+                                className={cn(
+                                  "w-full h-full rounded-full text-sm font-medium transition-all hover:bg-white/10 flex items-center justify-center",
+                                  selectedDate?.getDate() === day &&
+                                    selectedDate?.getMonth() ===
+                                      currentDate.getMonth() &&
+                                    selectedDate?.getFullYear() ===
+                                      currentDate.getFullYear()
+                                    ? "bg-primary text-white shadow-lg shadow-primary/30"
+                                    : "text-gray-300",
+                                )}
+                              >
+                                {day}
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* Bio */}
-            <div className="space-y-2">
-              <label className="text-[13px] font-semibold text-gray-600 dark:text-gray-400 ml-1">
-                Bio
-              </label>
-              <textarea
-                value={formData.bio}
-                onChange={(e) =>
-                  setFormData({ ...formData, bio: e.target.value })
-                }
-                className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-sm text-foreground font-medium backdrop-blur-sm hover:border-primary/30 focus:scale-[1.01] h-24 resize-none"
-                placeholder="Tell us a bit about yourself..."
-                required
-              />
-            </div>
+              {/* Bio */}
+              <div className="space-y-2">
+                <label className="text-[13px] font-semibold text-gray-600 dark:text-gray-400 ml-1">
+                  Bio
+                </label>
+                <textarea
+                  value={formData.bio}
+                  onChange={(e) =>
+                    setFormData({ ...formData, bio: e.target.value })
+                  }
+                  className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-sm text-foreground font-medium backdrop-blur-sm hover:border-primary/30 focus:scale-[1.01] h-24 resize-none"
+                  placeholder="Tell us a bit about yourself..."
+                  required
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink-500 text-white font-bold text-sm hover:shadow-2xl hover:shadow-primary/40 transition-all duration-300 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer relative overflow-hidden group"
-            >
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                {isLoading ? (
-                  <>
-                    <Loader2 className="animate-spin" size={18} />
-                    Finalizing...
-                  </>
-                ) : (
-                  <>
-                    Complete Profile <ArrowRight size={18} />
-                  </>
-                )}
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink-500 text-white font-bold text-sm hover:shadow-2xl hover:shadow-primary/40 transition-all duration-300 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer relative overflow-hidden group"
+              >
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin" size={18} />
+                      Finalizing...
+                    </>
+                  ) : (
+                    <>
+                      Complete Profile <ArrowRight size={18} />
+                    </>
+                  )}
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </button>
+            </form>
+          </div>
         </div>
       </div>
 

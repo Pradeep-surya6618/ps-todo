@@ -113,7 +113,7 @@ function VerifyCodeForm() {
   };
 
   return (
-    <div className="flex min-h-[100dvh] bg-background text-foreground relative overflow-hidden transition-colors duration-500">
+    <div className="h-dvh bg-background text-foreground relative overflow-hidden transition-colors duration-500 flex flex-col">
       {/* Fixed Logo & Brand - Top Left */}
       <div className="fixed top-0 left-0 z-50 p-4 md:p-6 animate-fade-in">
         <div className="flex items-center gap-2 group">
@@ -135,81 +135,82 @@ function VerifyCodeForm() {
       <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-500/5 dark:bg-purple-500/10 blur-[100px] rounded-full transition-opacity duration-1000 animate-float-delayed" />
       <div className="absolute top-[20%] left-[10%] w-[30%] h-[30%] bg-pink-500/5 dark:bg-pink-500/10 blur-[80px] rounded-full transition-opacity duration-1000 animate-pulse-slow" />
 
-      {/* Left Side: Form - Centered */}
-      <div className="flex-1 flex items-center justify-center p-4 md:p-8 z-10 transition-colors duration-500">
-        <div className="w-full max-w-[420px] space-y-8 animate-slide-up">
-          {/* Centered Welcome Section */}
-          <div className="text-center space-y-3 animate-fade-in-delayed">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Shield className="text-primary" size={32} />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground leading-tight">
-              Enter Verification Code
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-              We've sent a 4-digit code to
-              <br />
-              <span className="text-primary font-semibold">{email}</span>
-            </p>
-          </div>
-
-          {/* Form with Code Inputs */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* 4-Box Code Input */}
-            <div
-              className="flex justify-center gap-3 animate-fade-in-up"
-              style={{ animationDelay: "0.1s" }}
-            >
-              {code.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={inputRefs[index]}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  onPaste={index === 0 ? handlePaste : undefined}
-                  className="w-16 h-20 text-center text-3xl font-bold bg-[var(--auth-input-bg)] border-2 border-[var(--auth-input-border)] rounded-xl outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-foreground backdrop-blur-sm hover:border-primary/30 focus:scale-105"
-                  required
-                />
-              ))}
+      <div className="flex-1 overflow-y-auto no-scrollbar">
+        <div className="min-h-full flex items-center justify-center p-4 md:p-8 z-10 transition-colors duration-500">
+          <div className="w-full max-w-[420px] space-y-8 animate-slide-up">
+            {/* Centered Welcome Section */}
+            <div className="text-center space-y-3 animate-fade-in-delayed">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Shield className="text-primary" size={32} />
+              </div>
+              <h1 className="text-2xl font-bold text-foreground leading-tight">
+                Enter Verification Code
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                We've sent a 4-digit code to
+                <br />
+                <span className="text-primary font-semibold">{email}</span>
+              </p>
             </div>
 
-            <button
-              type="submit"
-              disabled={isLoading || code.some((d) => !d)}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-pink-500 text-white font-bold text-sm hover:shadow-2xl hover:shadow-primary/40 transition-all duration-300 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer relative overflow-hidden group animate-fade-in-up"
-              style={{ animationDelay: "0.2s" }}
-            >
-              <span className="relative z-10">
-                {isLoading ? "Verifying..." : "Verify Code"}
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </button>
-          </form>
-
-          {/* Resend Code */}
-          <div
-            className="text-center space-y-3 animate-fade-in-up"
-            style={{ animationDelay: "0.3s" }}
-          >
-            <p className="text-sm text-gray-500">
-              Didn't receive the code?{" "}
-              <button
-                onClick={handleResendCode}
-                className="text-primary font-semibold hover:underline cursor-pointer transition-all hover:scale-105 inline-block"
+            {/* Form with Code Inputs */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* 4-Box Code Input */}
+              <div
+                className="flex justify-center gap-3 animate-fade-in-up"
+                style={{ animationDelay: "0.1s" }}
               >
-                Resend Code
+                {code.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={inputRefs[index]}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(index, e)}
+                    onPaste={index === 0 ? handlePaste : undefined}
+                    className="w-16 h-20 text-center text-3xl font-bold bg-[var(--auth-input-bg)] border-2 border-[var(--auth-input-border)] rounded-xl outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-foreground backdrop-blur-sm hover:border-primary/30 focus:scale-105"
+                    required
+                  />
+                ))}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading || code.some((d) => !d)}
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-pink-500 text-white font-bold text-sm hover:shadow-2xl hover:shadow-primary/40 transition-all duration-300 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer relative overflow-hidden group animate-fade-in-up"
+                style={{ animationDelay: "0.2s" }}
+              >
+                <span className="relative z-10">
+                  {isLoading ? "Verifying..." : "Verify Code"}
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>
-            </p>
-            <Link
-              href="/login"
-              className="text-primary hover:underline transition-all cursor-pointer font-semibold text-sm inline-block"
+            </form>
+
+            {/* Resend Code */}
+            <div
+              className="text-center space-y-3 animate-fade-in-up"
+              style={{ animationDelay: "0.3s" }}
             >
-              Back to Login
-            </Link>
+              <p className="text-sm text-gray-500">
+                Didn't receive the code?{" "}
+                <button
+                  onClick={handleResendCode}
+                  className="text-primary font-semibold hover:underline cursor-pointer transition-all hover:scale-105 inline-block"
+                >
+                  Resend Code
+                </button>
+              </p>
+              <Link
+                href="/login"
+                className="text-primary hover:underline transition-all cursor-pointer font-semibold text-sm inline-block"
+              >
+                Back to Login
+              </Link>
+            </div>
           </div>
         </div>
       </div>

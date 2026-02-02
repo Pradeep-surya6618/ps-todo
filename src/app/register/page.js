@@ -50,7 +50,7 @@ export default function Register() {
   };
 
   return (
-    <div className="flex min-h-[100dvh] bg-background text-foreground relative overflow-y-auto transition-colors duration-500">
+    <div className="h-dvh bg-background text-foreground relative overflow-hidden transition-colors duration-500 flex flex-col">
       {/* Fixed Logo & Brand - Top Left */}
       <div className="fixed top-0 left-0 z-50 p-4 md:p-6 animate-fade-in">
         <div className="flex items-center gap-2 group">
@@ -72,87 +72,88 @@ export default function Register() {
       <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-500/5 dark:bg-purple-500/10 blur-[100px] rounded-full transition-opacity duration-1000 animate-float-delayed" />
       <div className="absolute top-[20%] left-[10%] w-[30%] h-[30%] bg-pink-500/5 dark:bg-pink-500/10 blur-[80px] rounded-full transition-opacity duration-1000 animate-pulse-slow" />
 
-      {/* Left Side: Form - Centered */}
-      <div className="flex-1 flex items-center justify-center p-4 md:p-8 z-10 transition-colors duration-500">
-        <div className="w-full max-w-[380px] space-y-8 animate-slide-up">
-          {/* Centered Welcome Section */}
-          <div className="text-center space-y-2 animate-fade-in-delayed">
-            <h1 className="text-2xl font-bold text-foreground leading-tight">
-              Create your account
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-              Join SunMoonie and start your cosmic journey
+      <div className="flex-1 overflow-y-auto no-scrollbar">
+        <div className="min-h-full flex items-center justify-center p-4 md:p-8 z-10 transition-colors duration-500">
+          <div className="w-full max-w-[380px] space-y-8 animate-slide-up">
+            {/* Centered Welcome Section */}
+            <div className="text-center space-y-2 animate-fade-in-delayed">
+              <h1 className="text-2xl font-bold text-foreground leading-tight">
+                Create your account
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                Join SunMoonie and start your cosmic journey
+              </p>
+            </div>
+
+            {/* Form with Enhanced Animations */}
+            <form onSubmit={handleRegister} className="space-y-5">
+              <div className="space-y-1.5">
+                <label className="text-[12px] font-medium text-gray-500 dark:text-gray-400">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-lg py-2 px-3 outline-none focus:ring-2 focus:ring-primary/40 transition-all text-sm text-foreground font-medium"
+                  placeholder="Surya"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[12px] font-medium text-gray-500 dark:text-gray-400">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-lg py-2 px-3 outline-none focus:ring-2 focus:ring-primary/40 transition-all text-sm text-foreground font-medium"
+                  placeholder="surya1812@gmail.com"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[12px] font-medium text-gray-500 dark:text-gray-400">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-lg py-2 px-3 outline-none focus:ring-2 focus:ring-primary/40 transition-all text-sm text-foreground font-medium"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-2.5 rounded-lg bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-all active:scale-[0.98] disabled:opacity-50 mt-2 cursor-pointer shadow-lg shadow-primary/20"
+              >
+                {isLoading ? "Creating account..." : "Sign up"}
+              </button>
+            </form>
+
+            <p className="text-center text-[12px] font-bold text-gray-500 mt-6">
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className="text-primary hover:underline transition-all cursor-pointer font-bold ml-1"
+              >
+                Log in
+              </Link>
             </p>
           </div>
-
-          {/* Form with Enhanced Animations */}
-          <form onSubmit={handleRegister} className="space-y-5">
-            <div className="space-y-1.5">
-              <label className="text-[12px] font-medium text-gray-500 dark:text-gray-400">
-                Full Name
-              </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-lg py-2 px-3 outline-none focus:ring-2 focus:ring-primary/40 transition-all text-sm text-foreground font-medium"
-                placeholder="Surya"
-                required
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-[12px] font-medium text-gray-500 dark:text-gray-400">
-                Email
-              </label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-lg py-2 px-3 outline-none focus:ring-2 focus:ring-primary/40 transition-all text-sm text-foreground font-medium"
-                placeholder="surya1812@gmail.com"
-                required
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-[12px] font-medium text-gray-500 dark:text-gray-400">
-                Password
-              </label>
-              <input
-                type="password"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-lg py-2 px-3 outline-none focus:ring-2 focus:ring-primary/40 transition-all text-sm text-foreground font-medium"
-                placeholder="••••••••"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-2.5 rounded-lg bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-all active:scale-[0.98] disabled:opacity-50 mt-2 cursor-pointer shadow-lg shadow-primary/20"
-            >
-              {isLoading ? "Creating account..." : "Sign up"}
-            </button>
-          </form>
-
-          <p className="text-center text-[12px] font-bold text-gray-500 mt-6">
-            Already have an account?{" "}
-            <Link
-              href="/login"
-              className="text-primary hover:underline transition-all cursor-pointer font-bold ml-1"
-            >
-              Log in
-            </Link>
-          </p>
         </div>
       </div>
 
