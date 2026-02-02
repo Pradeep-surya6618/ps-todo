@@ -98,7 +98,10 @@ function ResetPasswordForm() {
       <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-500/5 dark:bg-purple-500/10 blur-[100px] rounded-full transition-opacity duration-1000 animate-float-delayed" />
       <div className="absolute top-[20%] left-[10%] w-[30%] h-[30%] bg-pink-500/5 dark:bg-pink-500/10 blur-[80px] rounded-full transition-opacity duration-1000 animate-pulse-slow" />
 
-      <div className="flex-1 overflow-y-auto no-scrollbar">
+      <div
+        className="flex-1 overflow-y-auto no-scrollbar"
+        style={{ overscrollBehavior: "contain", touchAction: "pan-y" }}
+      >
         <div className="min-h-full flex items-center justify-center p-4 md:p-8 z-10 transition-colors duration-500">
           <div className="w-full max-w-[380px] space-y-8 animate-slide-up">
             {/* Centered Welcome Section */}

@@ -121,6 +121,7 @@
 html,
 body {
   height: 100dvh;
+  overscroll-behavior: none;
 }
 
 body {

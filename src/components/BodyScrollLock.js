@@ -4,22 +4,29 @@ import { useEffect } from "react";
 
 export default function BodyScrollLock() {
   useEffect(() => {
-    // Lock body scroll
-    const originalOverflow = document.body.style.overflow;
-    const originalHeight = document.body.style.height;
-    const originalPosition = document.body.style.position;
+    // Lock both html and body scroll
+    const html = document.documentElement;
+    const body = document.body;
 
-    document.body.style.overflow = "hidden";
-    document.body.style.height = "100dvh";
-    document.body.style.position = "fixed";
-    document.body.style.width = "100%";
+    const originalHtmlStyle = html.style.cssText;
+    const originalBodyStyle = body.style.cssText;
+
+    // Aggressive pinning
+    html.style.height = "100%";
+    html.style.overflow = "hidden";
+    html.style.overscrollBehavior = "none";
+
+    body.style.height = "100%";
+    body.style.overflow = "hidden";
+    body.style.overscrollBehavior = "none";
+    body.style.position = "fixed";
+    body.style.width = "100%";
+    body.style.touchAction = "none";
 
     return () => {
-      // Restore body scroll
-      document.body.style.overflow = originalOverflow;
-      document.body.style.height = originalHeight;
-      document.body.style.position = originalPosition;
-      document.body.style.width = "";
+      // Restore styles
+      html.style.cssText = originalHtmlStyle;
+      body.style.cssText = originalBodyStyle;
     };
   }, []);
 

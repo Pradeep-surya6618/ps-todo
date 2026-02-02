@@ -207,7 +207,10 @@ export default function Onboarding() {
       <div className="absolute top-[20%] left-[10%] w-[30%] h-[30%] bg-pink-500/5 dark:bg-pink-500/10 blur-[80px] rounded-full transition-opacity duration-1000 animate-pulse-slow" />
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto no-scrollbar">
+      <div
+        className="flex-1 overflow-y-auto no-scrollbar"
+        style={{ overscrollBehavior: "contain", touchAction: "pan-y" }}
+      >
         <div className="min-h-full flex items-center justify-center px-4 pt-24 pb-12 md:p-8 z-10 transition-colors duration-500">
           <div className="w-full max-w-[600px] space-y-8 animate-slide-up">
             {/* Header */}
