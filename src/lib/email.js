@@ -41,7 +41,11 @@ export async function sendEmail({ to, subject, html }) {
     return { success: true, messageId: data.id };
   } catch (error) {
     console.error("❌ Email sending error:", error);
-    return { success: false, error: error.message };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown email error",
+      details: error,
+    };
   }
 }
 
