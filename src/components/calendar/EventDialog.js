@@ -90,7 +90,7 @@ export default function EventDialog({
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="relative w-full max-w-md bg-card border border-border rounded-[2rem] sm:rounded-[2.5rem] p-5 md:p-8 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+          className="relative w-full max-w-md bg-card border border-border rounded-[2rem] sm:rounded-[2.5rem] p-5 md:p-8 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
         >
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <h2 className="text-xl md:text-2xl font-black text-foreground">
@@ -98,7 +98,7 @@ export default function EventDialog({
             </h2>
             <button
               onClick={onClose}
-              className="p-1.5 md:p-2 hover:bg-primary/10 rounded-full text-gray-500 transition-colors"
+              className="p-1.5 md:p-2 hover:bg-primary/10 rounded-full text-gray-500 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5 md:w-6 md:h-6" />
             </button>
@@ -118,7 +118,7 @@ export default function EventDialog({
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="What's happening?"
-                  className="w-full h-11 md:h-14 pl-10 md:pl-12 pr-4 bg-auth-input-bg border border-auth-input-border rounded-xl md:rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-primary transition-colors text-foreground font-bold text-sm md:text-base dashed-border-0"
+                  className="w-full h-11 md:h-14 pl-10 md:pl-12 pr-4 bg-auth-input-bg border border-gray-200 dark:border-gray-700 rounded-xl md:rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-primary transition-colors text-foreground font-bold text-sm md:text-base dashed-border-0"
                 />
               </div>
             </div>
@@ -134,7 +134,7 @@ export default function EventDialog({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Add some details..."
-                  className="w-full h-20 md:h-24 pl-10 md:pl-12 pr-4 py-3 md:py-4 bg-auth-input-bg border border-auth-input-border rounded-xl md:rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-primary transition-colors text-foreground font-medium text-sm md:text-base resize-none shadow-sm"
+                  className="w-full h-20 md:h-24 pl-10 md:pl-12 pr-4 py-3 md:py-4 bg-auth-input-bg border border-gray-200 dark:border-gray-700 rounded-xl md:rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-primary transition-colors text-foreground font-medium text-sm md:text-base resize-none shadow-sm"
                 />
               </div>
             </div>
@@ -164,7 +164,7 @@ export default function EventDialog({
                       }
                     }}
                     className={`
-                      flex items-center gap-2 p-2.5 md:p-3 rounded-xl md:rounded-2xl border transition-all
+                      flex items-center gap-2 p-2.5 md:p-3 rounded-xl md:rounded-2xl border transition-all cursor-pointer
                       ${type === t.id ? "bg-primary/10 border-primary" : "bg-card border-border hover:border-primary/30"}
                     `}
                   >
@@ -205,7 +205,7 @@ export default function EventDialog({
                           value={customCategory}
                           onChange={(e) => setCustomCategory(e.target.value)}
                           placeholder="e.g. Meeting"
-                          className="w-full h-11 pl-10 pr-4 bg-auth-input-bg border border-auth-input-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-primary transition-colors text-foreground font-bold text-sm"
+                          className="w-full h-11 pl-10 pr-4 bg-auth-input-bg border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-primary transition-colors text-foreground font-bold text-sm"
                         />
                       </div>
                     </div>
@@ -215,7 +215,7 @@ export default function EventDialog({
                       <label className="text-[10px] md:text-xs font-bold text-primary uppercase ml-1">
                         Category Color
                       </label>
-                      <div className="relative h-11 bg-auth-input-bg border border-auth-input-border rounded-xl flex items-center px-4 hover:border-primary transition-colors group cursor-pointer">
+                      <div className="relative h-11 bg-auth-input-bg border border-gray-200 dark:border-gray-700 rounded-xl flex items-center px-4 hover:border-primary transition-colors group cursor-pointer">
                         <Palette className="text-gray-400 w-4 h-4 mr-3" />
                         <div className="flex-1 flex items-center gap-2">
                           <div
@@ -250,7 +250,7 @@ export default function EventDialog({
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full h-12 md:h-14 bg-primary text-white rounded-xl md:rounded-2xl font-black text-base md:text-lg shadow-lg shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              className="w-full h-12 md:h-14 bg-primary text-white rounded-xl md:rounded-2xl font-black text-base md:text-lg shadow-lg shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
             >
               {editingEvent ? "Save Changes" : "Create Event"}
             </button>

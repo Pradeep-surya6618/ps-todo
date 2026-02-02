@@ -121,7 +121,7 @@ export default function CalendarPage() {
               setEditingEvent(null);
               setIsDialogOpen(true);
             }}
-            className="w-10 h-10 md:w-12 md:h-12 bg-primary text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30"
+            className="w-10 h-10 md:w-12 md:h-12 bg-primary text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30 cursor-pointer"
           >
             <Plus className="w-5 h-5 md:w-6 md:h-6" />
           </motion.button>
