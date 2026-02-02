@@ -3,7 +3,7 @@ import dbConnect from "@/lib/db";
 import CycleLog from "@/models/CycleLog";
 import User from "@/models/User";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth-options";
 import { startOfMonth, endOfMonth } from "date-fns";
 
 export async function POST(req) {
