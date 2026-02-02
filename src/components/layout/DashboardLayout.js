@@ -46,7 +46,7 @@ export default function DashboardLayout({ children }) {
 
       <main
         className={cn(
-          "flex-1 flex flex-col transition-all duration-300 h-dvh overflow-y-auto",
+          "flex-1 flex flex-col transition-all duration-300 h-dvh overflow-hidden",
           "md:max-w-none w-full",
         )}
       >

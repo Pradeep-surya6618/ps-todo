@@ -47,7 +47,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-[100dvh] bg-background text-foreground relative overflow-hidden transition-colors duration-500">
+    <div className="flex min-h-[100dvh] bg-background text-foreground relative overflow-y-auto transition-colors duration-500">
       {/* Fixed Logo & Brand - Top Left */}
       <div className="fixed top-0 left-0 z-50 p-4 md:p-6 animate-fade-in">
         <div className="flex items-center gap-2 group">
