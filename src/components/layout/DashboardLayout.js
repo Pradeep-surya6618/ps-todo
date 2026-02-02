@@ -40,20 +40,20 @@ export default function DashboardLayout({ children }) {
   }
 
   return (
-    <div className="flex h-dvh bg-background overflow-hidden">
+    <div className="fixed inset-0 flex bg-background overflow-hidden">
       <Sidebar />
       <MobileDrawer />
 
       <main
         className={cn(
-          "flex-1 flex flex-col transition-all duration-300 h-dvh overflow-hidden",
+          "flex-1 flex flex-col transition-all duration-300 min-h-0",
           "md:max-w-none w-full",
         )}
       >
         {/* <PullToRefresh /> */}
         <Header />
 
-        <div className="flex-1 px-1 py-2 md:p-8 pb-24 md:pb-8 max-w-7xl mx-auto w-full overflow-y-auto no-scrollbar">
+        <div className="flex-1 px-1 py-2 md:p-8 pb-24 md:pb-8 max-w-7xl mx-auto w-full overflow-y-auto no-scrollbar min-h-0">
           {children}
         </div>
 
