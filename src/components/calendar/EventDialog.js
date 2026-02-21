@@ -9,6 +9,7 @@ import {
   AlignLeft,
   Tag,
   Palette,
+  Clock,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -24,6 +25,7 @@ export default function EventDialog({
   const [type, setType] = useState("note");
   const [color, setColor] = useState("#ff2e63");
   const [customCategory, setCustomCategory] = useState("");
+  const [time, setTime] = useState("09:00");
 
   const standardTypes = ["note", "birthday", "task"];
 
@@ -32,6 +34,12 @@ export default function EventDialog({
       setTitle(editingEvent.title);
       setDescription(editingEvent.description || "");
       setColor(editingEvent.color);
+
+      // Extract time from existing event
+      const eventDate = new Date(editingEvent.date);
+      const hours = eventDate.getHours().toString().padStart(2, "0");
+      const minutes = eventDate.getMinutes().toString().padStart(2, "0");
+      setTime(`${hours}:${minutes}`);
 
       if (standardTypes.includes(editingEvent.type)) {
         setType(editingEvent.type);
@@ -46,6 +54,14 @@ export default function EventDialog({
       setType("note");
       setColor("#ff2e63");
       setCustomCategory("");
+      // Default to next nearest 30-min slot
+      const now = new Date();
+      const mins = now.getMinutes() < 30 ? "30" : "00";
+      const hrs =
+        now.getMinutes() < 30
+          ? now.getHours().toString().padStart(2, "0")
+          : ((now.getHours() + 1) % 24).toString().padStart(2, "0");
+      setTime(`${hrs}:${mins}`);
     }
   }, [editingEvent, isOpen]);
 
@@ -54,16 +70,20 @@ export default function EventDialog({
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Determine the final type and color
     const finalType =
       type === "other" ? customCategory.trim() || "Event" : type;
+
+    // Combine date with time
+    const eventDate = new Date(selectedDate);
+    const [hours, minutes] = time.split(":");
+    eventDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
     onSave({
       title,
       description,
       type: finalType,
       color,
-      date: selectedDate,
+      date: eventDate,
       _id: editingEvent?._id,
     });
   };
@@ -90,7 +110,7 @@ export default function EventDialog({
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="relative w-full max-w-md bg-card border border-border rounded-[2rem] sm:rounded-[2.5rem] p-5 md:p-8 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+          className="relative w-full max-w-md bg-card border border-border rounded-[2rem] sm:rounded-[2.5rem] p-5 md:p-8 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto no-scrollbar"
         >
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <h2 className="text-xl md:text-2xl font-black text-foreground">
@@ -104,7 +124,7 @@ export default function EventDialog({
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
             {/* Title Input */}
             <div className="space-y-1">
               <label className="text-[10px] md:text-xs font-bold text-primary uppercase ml-1">
@@ -118,7 +138,7 @@ export default function EventDialog({
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="What's happening?"
-                  className="w-full h-11 md:h-14 pl-10 md:pl-12 pr-4 bg-auth-input-bg border border-gray-200 dark:border-gray-700 rounded-xl md:rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-primary transition-colors text-foreground font-bold text-sm md:text-base dashed-border-0"
+                  className="w-full h-11 md:h-14 pl-10 md:pl-12 pr-4 bg-auth-input-bg border border-gray-200 dark:border-gray-700 rounded-xl md:rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-primary transition-colors text-foreground font-bold text-sm md:text-base"
                 />
               </div>
             </div>
@@ -139,6 +159,22 @@ export default function EventDialog({
               </div>
             </div>
 
+            {/* Time Picker */}
+            <div className="space-y-1">
+              <label className="text-[10px] md:text-xs font-bold text-primary uppercase ml-1">
+                Time
+              </label>
+              <div className="relative">
+                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 md:w-[18px] md:h-[18px]" />
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="w-full h-11 md:h-14 pl-10 md:pl-12 pr-4 bg-auth-input-bg border border-gray-200 dark:border-gray-700 rounded-xl md:rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary hover:border-primary transition-colors text-foreground font-bold text-sm md:text-base cursor-pointer"
+                />
+              </div>
+            </div>
+
             {/* Category Selection */}
             <div className="space-y-1">
               <label className="text-[10px] md:text-xs font-bold text-primary uppercase ml-1">
@@ -151,15 +187,12 @@ export default function EventDialog({
                     type="button"
                     onClick={() => {
                       setType(t.id);
-                      // Only set standard colors if switching to standard types
-                      // If 'other', we might want to keep the current selection or default to orange
                       if (t.id !== "other") {
                         setColor(t.color);
                       } else if (
                         t.id === "other" &&
                         standardTypes.includes(type)
                       ) {
-                        // If switching TO other FROM standard, set to the 'other' default
                         setColor(t.color);
                       }
                     }}
@@ -184,7 +217,7 @@ export default function EventDialog({
               </div>
             </div>
 
-            {/* Custom Category Options (Only if 'other' is selected) */}
+            {/* Custom Category Options */}
             <AnimatePresence>
               {type === "other" && (
                 <motion.div
@@ -194,7 +227,6 @@ export default function EventDialog({
                   className="overflow-hidden space-y-4"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                    {/* Custom Category Name */}
                     <div className="space-y-1">
                       <label className="text-[10px] md:text-xs font-bold text-primary uppercase ml-1">
                         Category Name
@@ -210,7 +242,6 @@ export default function EventDialog({
                       </div>
                     </div>
 
-                    {/* Custom Color Picker */}
                     <div className="space-y-1">
                       <label className="text-[10px] md:text-xs font-bold text-primary uppercase ml-1">
                         Category Color

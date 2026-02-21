@@ -12,6 +12,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Bell,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useNavStore } from "@/store/useNavStore";
@@ -24,7 +25,9 @@ const menuItems = [
   { icon: FileText, label: "Notes", href: "/dashboard/notes" },
   { icon: Calendar, label: "Calendar", href: "/dashboard/calendar" },
   { icon: Activity, label: "Cycle Tracker", href: "/dashboard/cycle" },
+  { icon: Bell, label: "Notifications", href: "/dashboard/notifications" },
   { icon: User, label: "Profile", href: "/dashboard/profile" },
+  { icon: Settings, label: "Settings", href: "/dashboard/settings" },
 ];
 
 export default function Sidebar() {
@@ -47,10 +50,10 @@ export default function Sidebar() {
             key={`star-${i}`}
             className="absolute w-1 h-1 bg-foreground/40 dark:bg-white/60 rounded-full animate-pulse-slow"
             style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              opacity: Math.random() * 0.6 + 0.4,
+              top: `${((i * 41 + 17) % 97)}%`,
+              left: `${((i * 59 + 11) % 99)}%`,
+              animationDelay: `${(i * 0.15) % 3}s`,
+              opacity: (i % 5) * 0.12 + 0.4,
             }}
           />
         ))}

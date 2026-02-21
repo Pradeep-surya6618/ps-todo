@@ -14,31 +14,44 @@ import {
   Zap,
   Coffee,
   Loader2,
+  Droplets,
+  Heart,
+  Moon,
+  TrendingUp,
+  BarChart3,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { differenceInDays, addDays } from "date-fns";
 import { useSnackbar } from "notistack";
 
+const symptoms = [
+  { id: "cramps", icon: Wind, label: "Cramps", color: "#ef4444" },
+  { id: "headache", icon: Thermometer, label: "Headache", color: "#f97316" },
+  { id: "happy", icon: Smile, label: "Happy", color: "#10b981" },
+  { id: "moody", icon: Frown, label: "Moody", color: "#8b5cf6" },
+  { id: "energy", icon: Zap, label: "Energy", color: "#f59e0b" },
+  { id: "tired", icon: Coffee, label: "Tired", color: "#6b7280" },
+  { id: "bloating", icon: Droplets, label: "Bloating", color: "#3b82f6" },
+  { id: "cravings", icon: Heart, label: "Cravings", color: "#ec4899" },
+];
+
 export default function CycleTrackerPage() {
   const { enqueueSnackbar } = useSnackbar();
 
-  // State for Cycle Data
   const [cycleSettings, setCycleSettings] = useState({
-    periodStartDate: new Date(), // Default to Today
+    periodStartDate: new Date(),
     cycleLength: 28,
     periodLength: 5,
   });
   const [loading, setLoading] = useState(true);
-
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
-  const [logs, setLogs] = useState([]); // Store fetched logs
+  const [logs, setLogs] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Fetch Data on Mount
   useEffect(() => {
     async function fetchData() {
       try {
-        // 1. Fetch Settings
         const settingsRes = await fetch("/api/cycle/settings");
         if (settingsRes.ok) {
           const data = await settingsRes.json();
@@ -48,22 +61,14 @@ export default function CycleTrackerPage() {
               cycleLength: data.cycleLength || 28,
               periodLength: data.periodLength || 5,
             });
-          } else {
-            // Fresh account: defaulting to today so UI doesn't break
-            setCycleSettings((prev) => ({
-              ...prev,
-              periodStartDate: new Date(),
-            }));
           }
         }
 
-        // 2. Fetch Logs (All for now)
         const logsRes = await fetch("/api/cycle/logs");
         if (logsRes.ok) {
           const data = await logsRes.json();
           setLogs(data);
 
-          // Check if we have logs for TODAY to populate selectedSymptoms
           const todayStr = new Date().toISOString().split("T")[0];
           const todayLog = data.find(
             (log) => log.date.split("T")[0] === todayStr,
@@ -82,15 +87,12 @@ export default function CycleTrackerPage() {
     fetchData();
   }, [enqueueSnackbar]);
 
-  // Derived State: Calculate current day of cycle
   const cycleData = useMemo(() => {
-    // If loading, return safe defaults
-
     const today = new Date();
-    // Simple calculation: finding days since period start, modulo cycle length
-    let daysSinceStart = differenceInDays(today, cycleSettings.periodStartDate);
-
-    // Normalize if negative (future date) or far past
+    let daysSinceStart = differenceInDays(
+      today,
+      cycleSettings.periodStartDate,
+    );
     if (daysSinceStart < 0) daysSinceStart = 0;
 
     const currentCycleDay = (daysSinceStart % cycleSettings.cycleLength) + 1;
@@ -99,6 +101,12 @@ export default function CycleTrackerPage() {
       cycleSettings.cycleLength *
         (Math.floor(daysSinceStart / cycleSettings.cycleLength) + 1),
     );
+    const daysUntilNext = differenceInDays(predictedNextStart, today);
+    const ovulationDay = cycleSettings.cycleLength - 14;
+    const fertileStart = ovulationDay - 3;
+    const fertileEnd = ovulationDay + 1;
+    const isFertile =
+      currentCycleDay >= fertileStart && currentCycleDay <= fertileEnd;
 
     return {
       currentDay: currentCycleDay,
@@ -106,26 +114,114 @@ export default function CycleTrackerPage() {
       periodDays: cycleSettings.periodLength,
       periodStartDate: cycleSettings.periodStartDate,
       predictedPeriodStart: predictedNextStart,
+      daysUntilNext,
+      ovulationDay,
+      isFertile,
     };
   }, [cycleSettings]);
 
-  // Handle saving from Edit Dialog
+  // Dynamic phase-based insights
+  const insight = useMemo(() => {
+    const day = cycleData.currentDay;
+    const periodDays = cycleData.periodDays;
+    const ovDay = cycleData.totalDays - 14;
+
+    if (day <= periodDays) {
+      return {
+        title: "Menstruation Phase",
+        icon: Droplets,
+        color: "#ef4444",
+        bg: "bg-red-50 dark:bg-red-950/30",
+        border: "border-red-100 dark:border-red-900/50",
+        textColor: "text-red-900 dark:text-red-300",
+        subColor: "text-red-700 dark:text-red-400/80",
+        tips: [
+          "Rest and hydrate well",
+          "Warm compresses can help with cramps",
+          "Iron-rich foods like spinach are beneficial",
+          "Light walks or yoga can ease discomfort",
+        ],
+      };
+    } else if (day <= ovDay - 3) {
+      return {
+        title: "Follicular Phase",
+        icon: TrendingUp,
+        color: "#10b981",
+        bg: "bg-emerald-50 dark:bg-emerald-950/30",
+        border: "border-emerald-100 dark:border-emerald-900/50",
+        textColor: "text-emerald-900 dark:text-emerald-300",
+        subColor: "text-emerald-700 dark:text-emerald-400/80",
+        tips: [
+          "Energy levels are rising - great for new projects",
+          "Best time for intense workouts",
+          "Creativity is at its peak",
+          "Social activities will feel more enjoyable",
+        ],
+      };
+    } else if (day >= ovDay - 3 && day <= ovDay + 1) {
+      return {
+        title: "Ovulation Window",
+        icon: Zap,
+        color: "#f59e0b",
+        bg: "bg-amber-50 dark:bg-amber-950/30",
+        border: "border-amber-100 dark:border-amber-900/50",
+        textColor: "text-amber-900 dark:text-amber-300",
+        subColor: "text-amber-700 dark:text-amber-400/80",
+        tips: [
+          "Peak energy and confidence",
+          "Highest fertility window",
+          "Great time for important meetings",
+          "Your skin may look extra glowy",
+        ],
+      };
+    } else {
+      return {
+        title: "Luteal Phase",
+        icon: Moon,
+        color: "#8b5cf6",
+        bg: "bg-violet-50 dark:bg-violet-950/30",
+        border: "border-violet-100 dark:border-violet-900/50",
+        textColor: "text-violet-900 dark:text-violet-300",
+        subColor: "text-violet-700 dark:text-violet-400/80",
+        tips: [
+          "Be gentle with yourself",
+          "Magnesium-rich foods can help with PMS",
+          "Gentle exercise like yoga is ideal",
+          "Prioritize sleep and relaxation",
+        ],
+      };
+    }
+  }, [cycleData]);
+
+  // Symptom analytics
+  const symptomStats = useMemo(() => {
+    if (logs.length === 0) return null;
+    const counts = {};
+    symptoms.forEach((s) => (counts[s.id] = 0));
+    logs.forEach((log) => {
+      log.symptoms?.forEach((s) => {
+        if (counts[s] !== undefined) counts[s]++;
+      });
+    });
+    const sorted = Object.entries(counts)
+      .filter(([, count]) => count > 0)
+      .sort(([, a], [, b]) => b - a);
+    return sorted.length > 0 ? sorted : null;
+  }, [logs]);
+
   const handleSaveSettings = async (newSettings) => {
     try {
-      // Merge with current settings to ensure we don't overwrite with partial data
       const mergedSettings = { ...cycleSettings, ...newSettings };
-
       const res = await fetch("/api/cycle/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(mergedSettings),
       });
-
       if (res.ok) {
         const savedData = await res.json();
         setCycleSettings({
           ...cycleSettings,
-          ...newSettings, // Optimistic update
+          ...newSettings,
           periodStartDate: new Date(
             savedData.periodStartDate || newSettings.periodStartDate,
           ),
@@ -140,16 +236,9 @@ export default function CycleTrackerPage() {
   };
 
   const handleDateClick = async (date) => {
-    // Determine if we are just selecting a date to VIEW logs, or changing period start
-    // For this app flow, clicking a date on calendar -> Usually means spotting check or changing start date
-    // Let's stick to "Change Period Start" behavior for now as per previous req
-
-    const newSettings = { ...cycleSettings, periodStartDate: date };
-    // Call same save handler
-    handleSaveSettings(newSettings);
+    handleSaveSettings({ ...cycleSettings, periodStartDate: date });
   };
 
-  // Symptom Logic
   const toggleSymptom = (id) => {
     setSelectedSymptoms((prev) =>
       prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
@@ -161,25 +250,19 @@ export default function CycleTrackerPage() {
       enqueueSnackbar("Select symptoms to log first", { variant: "info" });
       return;
     }
-
+    setIsSaving(true);
     try {
-      const today = new Date();
       const res = await fetch("/api/cycle/logs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          date: today.toISOString(),
+          date: new Date().toISOString(),
           symptoms: selectedSymptoms,
         }),
       });
-
       if (res.ok) {
-        enqueueSnackbar("Symptoms logged successfully!", {
-          variant: "success",
-        });
-        // Update local logs state
+        enqueueSnackbar("Symptoms logged!", { variant: "success" });
         const newLog = await res.json();
-        // remove old log for today if exists
         const filteredLogs = logs.filter(
           (l) => l.date.split("T")[0] !== newLog.date.split("T")[0],
         );
@@ -189,23 +272,77 @@ export default function CycleTrackerPage() {
       }
     } catch (error) {
       enqueueSnackbar("Failed to log symptoms", { variant: "error" });
+    } finally {
+      setIsSaving(false);
     }
   };
-
-  const symptoms = [
-    { id: "cramps", icon: Wind, label: "Cramps" },
-    { id: "headache", icon: Thermometer, label: "Headache" },
-    { id: "happy", icon: Smile, label: "Happy" },
-    { id: "moody", icon: Frown, label: "Moody" },
-    { id: "energy", icon: Zap, label: "High Energy" },
-    { id: "tired", icon: Coffee, label: "Tired" },
-  ];
 
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center h-[60vh]">
-          <Loader2 className="animate-spin text-primary" size={40} />
+        <div className="flex flex-col gap-6 max-w-md mx-auto w-full pb-8 px-4 md:px-0">
+          {/* Header skeleton */}
+          <div className="flex items-center justify-between mt-2">
+            <div className="space-y-1.5">
+              <div className="h-6 w-36 bg-gray-200 dark:bg-zinc-800 rounded-lg animate-pulse" />
+              <div className="h-3 w-24 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse" />
+            </div>
+            <div className="h-8 w-20 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse" />
+          </div>
+          {/* Status card skeleton */}
+          <div className="w-full rounded-3xl p-6 bg-gray-200 dark:bg-zinc-800 animate-pulse">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="h-3 w-24 bg-gray-300 dark:bg-zinc-700 rounded" />
+              <div className="w-48 h-48 rounded-full border-[6px] border-gray-300 dark:border-zinc-700 flex items-center justify-center">
+                <div className="space-y-2 flex flex-col items-center">
+                  <div className="h-3 w-8 bg-gray-300 dark:bg-zinc-700 rounded" />
+                  <div className="h-14 w-16 bg-gray-300 dark:bg-zinc-700 rounded-lg" />
+                  <div className="h-3 w-10 bg-gray-300 dark:bg-zinc-700 rounded" />
+                </div>
+              </div>
+              <div className="space-y-1.5 flex flex-col items-center">
+                <div className="h-5 w-32 bg-gray-300 dark:bg-zinc-700 rounded-lg" />
+                <div className="h-3 w-40 bg-gray-300 dark:bg-zinc-700 rounded" />
+              </div>
+            </div>
+          </div>
+          {/* Quick stats skeleton */}
+          <div className="grid grid-cols-3 gap-2">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="glass rounded-2xl p-3 text-center animate-pulse">
+                <div className="h-5 w-8 bg-gray-200 dark:bg-zinc-800 rounded mx-auto mb-1" />
+                <div className="h-2.5 w-14 bg-gray-200 dark:bg-zinc-800 rounded mx-auto" />
+              </div>
+            ))}
+          </div>
+          {/* Symptoms skeleton */}
+          <div className="space-y-3">
+            <div className="h-4 w-32 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse ml-1" />
+            <div className="grid grid-cols-4 gap-2">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="flex flex-col items-center gap-1.5 p-2 animate-pulse">
+                  <div className="w-10 h-10 bg-gray-200 dark:bg-zinc-800 rounded-xl" />
+                  <div className="h-2.5 w-10 bg-gray-200 dark:bg-zinc-800 rounded" />
+                </div>
+              ))}
+            </div>
+            <div className="w-full h-11 bg-gray-200 dark:bg-zinc-800 rounded-xl animate-pulse" />
+          </div>
+          {/* Insights skeleton */}
+          <div className="rounded-3xl p-5 bg-gray-100 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 animate-pulse">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-5 h-5 bg-gray-200 dark:bg-zinc-700 rounded" />
+              <div className="h-4 w-32 bg-gray-200 dark:bg-zinc-700 rounded-lg" />
+            </div>
+            <div className="space-y-2">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-gray-200 dark:bg-zinc-700 rounded-full shrink-0" />
+                  <div className="h-3 w-full bg-gray-200 dark:bg-zinc-700 rounded" style={{ width: `${75 - i * 10}%` }} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -214,14 +351,19 @@ export default function CycleTrackerPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-6 max-w-md mx-auto w-full pb-8 px-4 md:px-0">
-        {/* Header Section */}
+        {/* Header */}
         <div className="flex items-center justify-between mt-2">
-          <h1 className="text-1xl font-black tracking-tight text-foreground">
-            Cycle Tracker
-          </h1>
+          <div>
+            <h1 className="text-xl font-black tracking-tight text-foreground">
+              Cycle Tracker
+            </h1>
+            <p className="text-xs text-gray-500 font-medium">
+              Day {cycleData.currentDay} of {cycleData.totalDays}
+            </p>
+          </div>
           <button
             onClick={() => setIsEditDialogOpen(true)}
-            className="text-primary text-sm font-bold bg-primary/10 px-2 py-1 rounded-full hover:bg-primary/20 transition-colors cursor-pointer"
+            className="text-primary text-sm font-bold bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors cursor-pointer"
           >
             Edit Cycle
           </button>
@@ -241,43 +383,90 @@ export default function CycleTrackerPage() {
           />
         </motion.div>
 
-        {/* Quick Log Section */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider ml-1">
-            Today's Symptoms
-          </h3>
-          <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide -mx-1 px-1">
-            <button
-              onClick={handleLogSubmit}
-              className="flex flex-col items-center gap-2 min-w-[70px] cursor-pointer"
+        {/* Quick Stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-3 gap-2"
+        >
+          <div className="glass rounded-2xl p-3 text-center">
+            <p className="text-lg font-black text-foreground">
+              {cycleData.daysUntilNext}
+            </p>
+            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+              Days Until
+            </p>
+          </div>
+          <div className="glass rounded-2xl p-3 text-center">
+            <p className="text-lg font-black text-foreground">
+              {cycleData.ovulationDay}
+            </p>
+            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+              Ovulation Day
+            </p>
+          </div>
+          <div
+            className={`glass rounded-2xl p-3 text-center ${cycleData.isFertile ? "ring-2 ring-amber-400/50" : ""}`}
+          >
+            <p
+              className={`text-lg font-black ${cycleData.isFertile ? "text-amber-500" : "text-foreground"}`}
             >
-              <div className="w-14 h-14 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 transition-transform active:scale-95">
-                <Plus size={24} />
-              </div>
-              <span className="text-xs font-semibold text-foreground">Log</span>
-            </button>
+              {cycleData.isFertile ? "Yes" : "No"}
+            </p>
+            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+              Fertile
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Symptom Logger */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="space-y-3"
+        >
+          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider ml-1">
+            Today&apos;s Symptoms
+          </h3>
+          <div className="grid grid-cols-4 gap-2">
             {symptoms.map((symptom) => {
               const isSelected = selectedSymptoms.includes(symptom.id);
               return (
                 <button
                   key={symptom.id}
                   onClick={() => toggleSymptom(symptom.id)}
-                  className="flex flex-col items-center gap-2 min-w-[70px] group cursor-pointer"
+                  className="flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all cursor-pointer group"
+                  style={{
+                    backgroundColor: isSelected
+                      ? `${symptom.color}15`
+                      : "transparent",
+                    border: isSelected
+                      ? `1px solid ${symptom.color}30`
+                      : "1px solid transparent",
+                  }}
                 >
                   <div
-                    className={`
-                    w-14 h-14 rounded-2xl border flex items-center justify-center transition-all duration-200 active:scale-95
-                    ${
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${
                       isSelected
-                        ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
-                        : "bg-white dark:bg-zinc-900 border-border text-gray-400 group-hover:border-primary/50 group-hover:text-primary"
+                        ? "shadow-md scale-105"
+                        : "bg-gray-100 dark:bg-zinc-800 group-hover:scale-105"
+                    }`}
+                    style={
+                      isSelected
+                        ? { backgroundColor: symptom.color, color: "white" }
+                        : {}
                     }
-                  `}
                   >
-                    <symptom.icon size={24} />
+                    <symptom.icon
+                      size={18}
+                      className={isSelected ? "" : "text-gray-400"}
+                    />
                   </div>
                   <span
-                    className={`text-xs font-medium transition-colors ${isSelected ? "text-primary font-bold" : "text-gray-500 group-hover:text-foreground"}`}
+                    className={`text-[9px] font-bold transition-colors ${isSelected ? "font-black" : "text-gray-500"}`}
+                    style={isSelected ? { color: symptom.color } : {}}
                   >
                     {symptom.label}
                   </span>
@@ -285,9 +474,21 @@ export default function CycleTrackerPage() {
               );
             })}
           </div>
-        </div>
+          <button
+            onClick={handleLogSubmit}
+            disabled={isSaving || selectedSymptoms.length === 0}
+            className="w-full h-11 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isSaving ? (
+              <Loader2 className="animate-spin" size={16} />
+            ) : (
+              <Plus size={16} />
+            )}
+            Log Symptoms
+          </button>
+        </motion.div>
 
-        {/* Calendar Section */}
+        {/* Calendar */}
         <motion.div
           layout
           initial={{ opacity: 0, y: 20 }}
@@ -302,16 +503,91 @@ export default function CycleTrackerPage() {
           />
         </motion.div>
 
-        {/* Insights Teaser */}
-        <div className="bg-indigo-50 dark:bg-indigo-950/30 p-5 rounded-3xl border border-indigo-100 dark:border-indigo-900/50">
-          <h3 className="font-bold text-indigo-900 dark:text-indigo-300 mb-1">
-            Cycle Insight
-          </h3>
-          <p className="text-sm text-indigo-700 dark:text-indigo-400/80 leading-relaxed">
-            Based on Day {Math.floor(cycleData.currentDay)}, you might be
-            feeling energetic. Good time for new projects!
-          </p>
-        </div>
+        {/* Dynamic Insights */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className={`${insight.bg} p-5 rounded-3xl border ${insight.border}`}
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <insight.icon size={18} style={{ color: insight.color }} />
+            <h3 className={`font-bold ${insight.textColor}`}>
+              {insight.title}
+            </h3>
+          </div>
+          <ul className="space-y-2">
+            {insight.tips.map((tip, i) => (
+              <li
+                key={i}
+                className={`text-sm ${insight.subColor} leading-relaxed flex items-start gap-2`}
+              >
+                <span
+                  className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
+                  style={{ backgroundColor: insight.color }}
+                />
+                {tip}
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+
+        {/* Symptom Analytics */}
+        {symptomStats && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="glass rounded-3xl p-5"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <BarChart3 size={16} className="text-primary" />
+              <h3 className="text-sm font-bold text-foreground">
+                Symptom History
+              </h3>
+            </div>
+            <div className="space-y-3">
+              {symptomStats.slice(0, 5).map(([symptomId, count]) => {
+                const symptom = symptoms.find((s) => s.id === symptomId);
+                if (!symptom) return null;
+                const maxCount = symptomStats[0][1];
+                const percentage = (count / maxCount) * 100;
+
+                return (
+                  <div key={symptomId} className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <symptom.icon
+                          size={14}
+                          style={{ color: symptom.color }}
+                        />
+                        <span className="text-xs font-bold text-foreground">
+                          {symptom.label}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-bold text-gray-400">
+                        {count} {count === 1 ? "day" : "days"}
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${percentage}%` }}
+                        transition={{ duration: 0.8, delay: 0.3 }}
+                        className="h-full rounded-full"
+                        style={{ backgroundColor: symptom.color }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-[10px] text-gray-400 font-medium mt-3">
+              Based on {logs.length} logged{" "}
+              {logs.length === 1 ? "day" : "days"}
+            </p>
+          </motion.div>
+        )}
 
         {/* Edit Dialog */}
         <CycleEditDialog

@@ -158,8 +158,33 @@ export default function CalendarPage() {
 
           <AnimatePresence mode="popLayout">
             {isLoading ? (
-              <div className="flex flex-col items-center justify-center p-12">
-                <div className="w-8 h-8 border-3 border-primary/20 border-t-primary rounded-full animate-spin" />
+              <div className={
+                viewMode === "grid"
+                  ? "grid grid-cols-2 sm:grid-cols-3 gap-3"
+                  : "flex flex-col gap-3"
+              }>
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="rounded-2xl p-3 min-h-[120px] flex flex-col bg-gray-100 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 animate-pulse"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="h-4 w-14 bg-gray-200 dark:bg-zinc-700 rounded-md" />
+                      <div className="flex gap-1">
+                        <div className="w-5 h-5 bg-gray-200 dark:bg-zinc-700 rounded-md" />
+                        <div className="w-5 h-5 bg-gray-200 dark:bg-zinc-700 rounded-md" />
+                      </div>
+                    </div>
+                    <div className="h-4 w-3/4 bg-gray-200 dark:bg-zinc-700 rounded mb-1.5" />
+                    <div className="flex-1 space-y-1.5 mb-2">
+                      <div className="h-2.5 w-full bg-gray-200 dark:bg-zinc-700 rounded" />
+                      <div className="h-2.5 w-2/3 bg-gray-200 dark:bg-zinc-700 rounded" />
+                    </div>
+                    <div className="pt-2 border-t border-gray-200 dark:border-zinc-700">
+                      <div className="h-2.5 w-16 bg-gray-200 dark:bg-zinc-700 rounded" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : filteredEvents.length > 0 ? (
               <motion.div

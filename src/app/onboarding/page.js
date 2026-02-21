@@ -183,7 +183,7 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="fixed inset-0 bg-background text-foreground relative overflow-hidden transition-colors duration-500 flex flex-col">
+    <div className="fixed inset-0 bg-background text-foreground overflow-hidden transition-colors duration-500 flex flex-col">
       <BodyScrollLock />
       {/* Fixed Logo & Brand - Top Left */}
       <div className="fixed top-0 left-0 z-50 p-4 md:p-6 animate-fade-in">

@@ -32,9 +32,6 @@ export default function Register() {
       const data = await res.json();
 
       if (res.ok) {
-        enqueueSnackbar("Registration successful! Please log in.", {
-          variant: "success",
-        });
         router.push("/login?registered=true");
       } else {
         enqueueSnackbar(data.error || "Something went wrong", {
@@ -52,7 +49,7 @@ export default function Register() {
   };
 
   return (
-    <div className="fixed inset-0 bg-background text-foreground relative overflow-hidden transition-colors duration-500 flex flex-col">
+    <div className="fixed inset-0 bg-background text-foreground overflow-hidden transition-colors duration-500 flex flex-col">
       <BodyScrollLock />
       {/* Fixed Logo & Brand - Top Left */}
       <div className="fixed top-0 left-0 z-50 p-4 md:p-6 animate-fade-in">
@@ -79,7 +76,7 @@ export default function Register() {
         className="flex-1 overflow-y-auto no-scrollbar"
         style={{ overscrollBehavior: "contain", touchAction: "pan-y" }}
       >
-        <div className="min-h-full flex items-center justify-center p-4 md:p-8 z-10 transition-colors duration-500">
+        <div className="min-h-full flex items-center justify-center p-4 pt-16 md:p-8 md:pt-8 z-10 transition-colors duration-500">
           <div className="w-full max-w-[380px] space-y-8 animate-slide-up">
             {/* Centered Welcome Section */}
             <div className="text-center space-y-2 animate-fade-in-delayed">

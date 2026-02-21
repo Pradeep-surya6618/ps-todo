@@ -114,7 +114,7 @@ function VerifyCodeForm() {
   };
 
   return (
-    <div className="fixed inset-0 bg-background text-foreground relative overflow-hidden transition-colors duration-500 flex flex-col">
+    <div className="fixed inset-0 bg-background text-foreground overflow-hidden transition-colors duration-500 flex flex-col">
       <BodyScrollLock />
       {/* Fixed Logo & Brand - Top Left */}
       <div className="fixed top-0 left-0 z-50 p-4 md:p-6 animate-fade-in">
@@ -141,7 +141,7 @@ function VerifyCodeForm() {
         className="flex-1 overflow-y-auto no-scrollbar"
         style={{ overscrollBehavior: "contain", touchAction: "pan-y" }}
       >
-        <div className="min-h-full flex items-center justify-center p-4 md:p-8 z-10 transition-colors duration-500">
+        <div className="min-h-full flex items-center justify-center p-4 pt-16 md:p-8 md:pt-8 z-10 transition-colors duration-500">
           <div className="w-full max-w-[420px] space-y-8 animate-slide-up">
             {/* Centered Welcome Section */}
             <div className="text-center space-y-3 animate-fade-in-delayed">
@@ -248,8 +248,17 @@ export default function VerifyCode() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-[100dvh] bg-background flex items-center justify-center">
-          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+        <div className="fixed inset-0 bg-background flex items-center justify-center p-4">
+          <div className="w-full max-w-[380px] space-y-8 animate-pulse">
+            <div className="text-center space-y-2">
+              <div className="h-7 w-36 bg-gray-200 dark:bg-zinc-800 rounded-lg mx-auto" />
+              <div className="h-4 w-52 bg-gray-200 dark:bg-zinc-800 rounded mx-auto" />
+            </div>
+            <div className="space-y-4">
+              <div className="h-12 w-full bg-gray-200 dark:bg-zinc-800 rounded-xl" />
+              <div className="h-12 w-full bg-gray-200 dark:bg-zinc-800 rounded-xl" />
+            </div>
+          </div>
         </div>
       }
     >

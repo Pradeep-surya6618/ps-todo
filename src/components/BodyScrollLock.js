@@ -4,29 +4,36 @@ import { useEffect } from "react";
 
 export default function BodyScrollLock() {
   useEffect(() => {
-    // Lock both html and body scroll
     const html = document.documentElement;
     const body = document.body;
 
-    const originalHtmlStyle = html.style.cssText;
-    const originalBodyStyle = body.style.cssText;
+    const originals = {
+      htmlOverscroll: html.style.overscrollBehavior,
+      bodyOverscroll: body.style.overscrollBehavior,
+      htmlHeight: html.style.height,
+      bodyHeight: body.style.height,
+      htmlOverflow: html.style.overflow,
+      bodyOverflow: body.style.overflow,
+    };
 
-    // Aggressive pinning
-    html.style.height = "100%";
-    html.style.overflow = "hidden";
+    // Prevent pull-to-refresh / overscroll bounce.
     html.style.overscrollBehavior = "none";
-
-    body.style.height = "100%";
-    body.style.overflow = "hidden";
     body.style.overscrollBehavior = "none";
-    body.style.position = "fixed";
-    body.style.width = "100%";
-    body.style.touchAction = "none";
+
+    // Lock document height and prevent body scroll.
+    // Inner containers handle their own scrolling via overflow-y-auto.
+    html.style.height = "100%";
+    body.style.height = "100%";
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
 
     return () => {
-      // Restore styles
-      html.style.cssText = originalHtmlStyle;
-      body.style.cssText = originalBodyStyle;
+      html.style.overscrollBehavior = originals.htmlOverscroll;
+      body.style.overscrollBehavior = originals.bodyOverscroll;
+      html.style.height = originals.htmlHeight;
+      body.style.height = originals.bodyHeight;
+      html.style.overflow = originals.htmlOverflow;
+      body.style.overflow = originals.bodyOverflow;
     };
   }, []);
 

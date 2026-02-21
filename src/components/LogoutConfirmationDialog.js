@@ -15,13 +15,7 @@ export default function LogoutConfirmationDialog({ isOpen, onClose }) {
     setIsLoggingOut(true);
     await signOut({ redirect: false });
     enqueueSnackbar("Logged out successfully", {
-      variant: "default",
-      style: {
-        backgroundColor: "#000",
-        color: "#fff",
-        border: "1px solid #333",
-      },
-      icon: <LogOut size={18} className="mr-2 text-primary" />,
+      variant: "success",
     });
     window.location.href = "/login";
   };

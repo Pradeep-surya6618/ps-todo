@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useSnackbar } from "notistack";
 import {
@@ -21,13 +22,10 @@ import {
   MapPin,
   Mail,
   Edit2,
-  Globe,
-  LogOut,
   Users,
   FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import SettingsDialog from "@/components/SettingsDialog";
 import LogoutConfirmationDialog from "@/components/LogoutConfirmationDialog";
 
 const AVATAR_OPTIONS = [
@@ -82,7 +80,6 @@ export default function ProfilePage() {
   const [isDateOpen, setIsDateOpen] = useState(false);
 
   // New States
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
@@ -121,6 +118,19 @@ export default function ProfilePage() {
       setIsInitialLoad(false);
     }
   }, [session, isInitialLoad]);
+
+  // Ensure body is scrollable on this standalone page
+  // (BodyScrollLock from DashboardLayout sets overflow:hidden on body)
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    html.style.overflow = "auto";
+    body.style.overflow = "auto";
+    return () => {
+      html.style.overflow = "";
+      body.style.overflow = "";
+    };
+  }, []);
 
   // Listener for logout from settings
   useEffect(() => {
@@ -340,14 +350,25 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-2 relative">
-      {/* Absolute Loading Overlay */}
+    <div className="min-h-screen bg-background text-foreground pb-8 relative">
+      {/* Saving Overlay with Skeleton */}
       {isLoading && (
-        <div className="fixed inset-0 z-[200] bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center space-y-4">
-          <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-          <p className="text-white font-bold animate-pulse text-lg">
-            Saving your changes...
-          </p>
+        <div className="fixed inset-0 z-[200] bg-black/50 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-card border border-border rounded-3xl p-6 w-72 shadow-2xl space-y-4 animate-pulse">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-zinc-700" />
+              <div className="h-5 w-36 bg-gray-200 dark:bg-zinc-700 rounded-lg" />
+              <div className="h-3 w-24 bg-gray-200 dark:bg-zinc-700 rounded" />
+            </div>
+            <div className="space-y-3">
+              <div className="h-3 w-full bg-gray-200 dark:bg-zinc-700 rounded" />
+              <div className="h-3 w-5/6 bg-gray-200 dark:bg-zinc-700 rounded" />
+              <div className="h-3 w-4/6 bg-gray-200 dark:bg-zinc-700 rounded" />
+            </div>
+            <p className="text-center text-sm font-bold text-primary animate-pulse">
+              Saving your changes...
+            </p>
+          </div>
         </div>
       )}
 
@@ -360,12 +381,12 @@ export default function ProfilePage() {
           <ArrowLeft size={22} />
         </button>
         <h1 className="text-lg font-bold">My Profile</h1>
-        <button
-          onClick={() => setIsSettingsOpen(true)}
+        <Link
+          href="/dashboard/settings"
           className="p-2 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors text-primary cursor-pointer"
         >
           <Settings size={22} />
-        </button>
+        </Link>
       </div>
 
       <div className="max-w-xl mx-auto p-4 space-y-6">
@@ -746,10 +767,6 @@ export default function ProfilePage() {
       </div>
 
       {/* Dialogs */}
-      <SettingsDialog
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-      />
       <LogoutConfirmationDialog
         isOpen={showLogoutDialog}
         onClose={() => setShowLogoutDialog(false)}

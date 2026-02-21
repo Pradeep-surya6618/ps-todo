@@ -26,10 +26,10 @@ export default function BottomNav() {
             key={`star-${i}`}
             className="absolute w-1 h-1 bg-white/60 rounded-full animate-pulse-slow"
             style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              opacity: Math.random() * 0.6 + 0.4,
+              top: `${((i * 29 + 19) % 97)}%`,
+              left: `${((i * 47 + 13) % 99)}%`,
+              animationDelay: `${(i * 0.25) % 3}s`,
+              opacity: (i % 5) * 0.12 + 0.4,
             }}
           />
         ))}

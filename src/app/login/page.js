@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useSnackbar } from "notistack";
-import { Chrome, Heart } from "lucide-react";
+import { Chrome, Heart, RefreshCw, Eye, EyeOff } from "lucide-react";
 import { Suspense } from "react";
 import BodyScrollLock from "@/components/BodyScrollLock";
 
@@ -13,6 +13,7 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -23,8 +24,9 @@ function LoginForm() {
       enqueueSnackbar("Account created! Please log in.", {
         variant: "success",
       });
+      router.replace("/login", { scroll: false });
     }
-  }, [registered, enqueueSnackbar]);
+  }, [registered, enqueueSnackbar, router]);
 
   const handleCredentialsLogin = async (e) => {
     e.preventDefault();
@@ -35,7 +37,9 @@ function LoginForm() {
       redirect: false,
     });
     if (res?.ok) {
-      enqueueSnackbar("Welcome back!", { variant: "success" });
+      if (!registered) {
+        enqueueSnackbar("Welcome back!", { variant: "success" });
+      }
       router.push("/dashboard");
     } else {
       setIsLoading(false);
@@ -47,9 +51,103 @@ function LoginForm() {
     await signIn("google", { callbackUrl: "/dashboard" });
   };
 
+  // Pull to refresh
+  const scrollRef = useRef(null);
+  const touchStartY = useRef(0);
+  const [pullDistance, setPullDistance] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const canPullRef = useRef(false);
+  const pullRef = useRef(0);
+  const refreshingRef = useRef(false);
+  const PULL_THRESHOLD = 80;
+  const MAX_PULL = 120;
+
+  // Keep refs in sync with state
+  useEffect(() => { pullRef.current = pullDistance; }, [pullDistance]);
+  useEffect(() => { refreshingRef.current = isRefreshing; }, [isRefreshing]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const onTouchStart = (e) => {
+      if (refreshingRef.current) return;
+      if (el.scrollTop <= 0) {
+        touchStartY.current = e.touches[0].clientY;
+        canPullRef.current = true;
+      } else {
+        canPullRef.current = false;
+      }
+    };
+
+    const onTouchMove = (e) => {
+      if (!canPullRef.current || refreshingRef.current) return;
+      const distance = e.touches[0].clientY - touchStartY.current;
+      if (distance > 10) {
+        e.preventDefault();
+        setPullDistance(Math.min(distance * 0.5, MAX_PULL));
+      }
+    };
+
+    const onTouchEnd = () => {
+      if (!canPullRef.current || refreshingRef.current) {
+        setPullDistance(0);
+        return;
+      }
+      if (pullRef.current >= PULL_THRESHOLD) {
+        setIsRefreshing(true);
+        setTimeout(() => window.location.reload(), 300);
+      } else {
+        setPullDistance(0);
+      }
+      canPullRef.current = false;
+    };
+
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    el.addEventListener("touchend", onTouchEnd, { passive: true });
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
+    };
+  }, []);
+
+  const progress = Math.min((pullDistance / PULL_THRESHOLD) * 100, 100);
+  const rotation = (pullDistance / MAX_PULL) * 360;
+
   return (
-    <div className="fixed inset-0 bg-background text-foreground relative overflow-hidden transition-colors duration-500 flex flex-col">
+    <div className="fixed inset-0 bg-background text-foreground overflow-hidden transition-colors duration-500 flex flex-col">
       <BodyScrollLock />
+
+      {/* Pull to Refresh Indicator */}
+      <div
+        className="fixed top-0 left-0 right-0 z-[9999] flex items-center justify-center pointer-events-none"
+        style={{
+          height: `${pullDistance}px`,
+          transition: isRefreshing || pullDistance === 0 ? "height 0.3s ease-out" : "none",
+        }}
+      >
+        <div
+          className="relative flex items-center justify-center"
+          style={{
+            opacity: pullDistance > 0 ? 1 : 0,
+            transform: `scale(${Math.min(pullDistance / PULL_THRESHOLD, 1)})`,
+            transition: pullDistance === 0 ? "opacity 0.3s, transform 0.3s" : "none",
+          }}
+        >
+          <svg className="absolute" width="48" height="48" viewBox="0 0 48 48" style={{ transform: "rotate(-90deg)" }}>
+            <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="3" className="text-primary/20" />
+            <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="3"
+              strokeDasharray={`${2 * Math.PI * 20}`}
+              strokeDashoffset={`${2 * Math.PI * 20 * (1 - progress / 100)}`}
+              strokeLinecap="round" className="text-primary"
+            />
+          </svg>
+          <RefreshCw size={24} className="text-primary" style={{ transform: `rotate(${rotation}deg)` }} />
+        </div>
+      </div>
+
       {/* Fixed Logo & Brand - Top Left */}
       <div className="fixed top-0 left-0 z-50 p-4 md:p-6 animate-fade-in">
         <div className="flex items-center gap-2 group">
@@ -72,10 +170,11 @@ function LoginForm() {
       <div className="absolute top-[20%] left-[10%] w-[30%] h-[30%] bg-pink-500/5 dark:bg-pink-500/10 blur-[80px] rounded-full transition-opacity duration-1000 animate-pulse-slow" />
 
       <div
+        ref={scrollRef}
         className="flex-1 overflow-y-auto no-scrollbar"
         style={{ overscrollBehavior: "contain", touchAction: "pan-y" }}
       >
-        <div className="min-h-full flex items-center justify-center p-4 md:p-8 z-10 transition-colors duration-500">
+        <div className="min-h-full flex items-center justify-center p-4 pt-16 md:p-8 md:pt-8 z-10 transition-colors duration-500">
           <div className="w-full max-w-[380px] space-y-8 animate-slide-up">
             {/* Centered Welcome Section */}
             <div className="text-center space-y-2 animate-fade-in-delayed">
@@ -121,14 +220,23 @@ function LoginForm() {
                     Forgot password?
                   </Link>
                 </div>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-sm text-foreground font-medium backdrop-blur-sm hover:border-primary/30 focus:scale-[1.01]"
-                  placeholder="••••••••"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-[var(--auth-input-bg)] border border-[var(--auth-input-border)] rounded-xl py-3 px-4 pr-11 outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all duration-300 text-sm text-foreground font-medium backdrop-blur-sm hover:border-primary/30 focus:scale-[1.01]"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors cursor-pointer"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
 
               <button
@@ -232,8 +340,25 @@ export default function Login() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-[100dvh] bg-background flex items-center justify-center">
-          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+        <div className="fixed inset-0 bg-background flex items-center justify-center p-4">
+          <div className="w-full max-w-[380px] space-y-8 animate-pulse">
+            <div className="text-center space-y-2">
+              <div className="h-7 w-40 bg-gray-200 dark:bg-zinc-800 rounded-lg mx-auto" />
+              <div className="h-4 w-56 bg-gray-200 dark:bg-zinc-800 rounded mx-auto" />
+            </div>
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <div className="h-3 w-20 bg-gray-200 dark:bg-zinc-800 rounded ml-1" />
+                <div className="h-12 w-full bg-gray-200 dark:bg-zinc-800 rounded-xl" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-3 w-16 bg-gray-200 dark:bg-zinc-800 rounded ml-1" />
+                <div className="h-12 w-full bg-gray-200 dark:bg-zinc-800 rounded-xl" />
+              </div>
+              <div className="h-12 w-full bg-gray-200 dark:bg-zinc-800 rounded-xl" />
+            </div>
+            <div className="h-12 w-full bg-gray-200 dark:bg-zinc-800 rounded-xl" />
+          </div>
         </div>
       }
     >

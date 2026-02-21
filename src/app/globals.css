@@ -154,11 +154,24 @@ body {
 /* Global override when handwritten font is active */
 .font-hand {
   font-family: var(--font-hand), cursive !important;
-  font-size: 1.15rem; /* Just Another Hand is naturally very small/thin */
 }
 
 .font-hand * {
   font-family: inherit !important;
+}
+
+/* Scale up text for handwritten font since Just Another Hand is naturally small */
+.font-hand p,
+.font-hand span,
+.font-hand label,
+.font-hand a,
+.font-hand li,
+.font-hand td,
+.font-hand th,
+.font-hand input,
+.font-hand textarea,
+.font-hand button {
+  font-size: 1.15em;
 }
 
 @layer utilities {

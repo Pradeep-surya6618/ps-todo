@@ -5,12 +5,13 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Calendar,
-  CheckCircle2,
+  Bell,
   Settings,
   LogOut,
   X,
   User,
-  ListTodo,
+  Activity,
+  FileText,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useNavStore } from "@/store/useNavStore";
@@ -21,8 +22,10 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: Calendar, label: "Upcoming", href: "/dashboard/upcoming" },
-  { icon: CheckCircle2, label: "Completed", href: "/dashboard/completed" },
+  { icon: FileText, label: "Notes", href: "/dashboard/notes" },
+  { icon: Calendar, label: "Calendar", href: "/dashboard/calendar" },
+  { icon: Activity, label: "Cycle Tracker", href: "/dashboard/cycle" },
+  { icon: Bell, label: "Notifications", href: "/dashboard/notifications" },
   { icon: User, label: "Profile", href: "/dashboard/profile" },
   { icon: Settings, label: "Settings", href: "/dashboard/settings" },
 ];

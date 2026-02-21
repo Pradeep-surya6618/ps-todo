@@ -46,6 +46,20 @@ const UserSchema = new mongoose.Schema(
       cycleLength: { type: Number, default: 28 },
       periodLength: { type: Number, default: 5 },
     },
+    streak: {
+      current: { type: Number, default: 0 },
+      longest: { type: Number, default: 0 },
+      lastLoginDate: { type: Date, default: null },
+    },
+    loginActivity: [
+      {
+        browser: String,
+        os: String,
+        device: String,
+        ip: String,
+        loginAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true },
 );

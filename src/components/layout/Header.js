@@ -1,15 +1,22 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
-import { Menu, Bell, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Bell } from "lucide-react";
 import { useNavStore } from "@/store/useNavStore";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { useSession } from "next-auth/react";
+import { useNotificationStore } from "@/store/useNotificationStore";
+
 
 export default function Header() {
   const { toggleMobileDrawer, isSidebarCollapsed, toggleSidebar } =
     useNavStore();
   const { data: session } = useSession();
+  const { unreadCount, fetchNotifications } = useNotificationStore();
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   return (
     <header className="h-16 glass sticky top-0 z-40 border-b border-border shadow-sm px-4 md:px-8 flex items-center justify-between transition-colors duration-500 relative overflow-visible">
@@ -21,10 +28,10 @@ export default function Header() {
             key={`star-${i}`}
             className="absolute w-1 h-1 bg-foreground/40 dark:bg-white/60 rounded-full animate-pulse-slow"
             style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              opacity: Math.random() * 0.6 + 0.4,
+              top: `${((i * 37 + 13) % 97)}%`,
+              left: `${((i * 53 + 7) % 99)}%`,
+              animationDelay: `${(i * 0.2) % 3}s`,
+              opacity: (i % 5) * 0.12 + 0.4,
             }}
           />
         ))}
@@ -63,14 +70,20 @@ export default function Header() {
         </span>
       </div>
 
-      <div className="flex items-center justify-end ml-auto gap-3 relative z-10">
-        <button
-          className="p-2.25 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl text-gray-400 relative transition-colors cursor-pointer"
+      <div className="flex items-center justify-end ml-auto gap-2 relative z-10">
+        {/* Notifications */}
+        <Link
+          href="/dashboard/notifications"
+          className="relative p-2 hover:bg-primary/10 rounded-xl transition-colors cursor-pointer"
           title="Notifications"
         >
-          <Bell size={20} />
-          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border-2 border-background" />
-        </button>
+          <Bell size={20} className="text-gray-500 hover:text-primary transition-colors" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-lg shadow-primary/30">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
+        </Link>
 
         <Link
           href="/dashboard/profile"
@@ -87,7 +100,9 @@ export default function Header() {
             </div>
           ) : (
             <div className="w-10 h-10 rounded-xl ring-2 ring-primary/60 group-hover:ring-primary shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all bg-background flex items-center justify-center text-primary font-black">
-              <span className="text-sm">{session?.user?.name?.[0] || "U"}</span>
+              <span className="text-sm">
+                {session?.user?.name?.[0] || "U"}
+              </span>
             </div>
           )}
         </Link>
