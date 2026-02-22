@@ -5,7 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useSnackbar } from "notistack";
-import { Chrome, Heart, RefreshCw, Eye, EyeOff } from "lucide-react";
+import { Heart, RefreshCw, Eye, EyeOff } from "lucide-react";
 import { Suspense } from "react";
 import BodyScrollLock from "@/components/BodyScrollLock";
 
@@ -117,7 +117,7 @@ function LoginForm() {
   const rotation = (pullDistance / MAX_PULL) * 360;
 
   return (
-    <div className="fixed inset-0 bg-background text-foreground overflow-hidden transition-colors duration-500 flex flex-col">
+    <div className="fixed inset-0 bg-background text-foreground overflow-hidden transition-colors duration-500 flex flex-col lg:flex-row">
       <BodyScrollLock />
 
       {/* Pull to Refresh Indicator */}
