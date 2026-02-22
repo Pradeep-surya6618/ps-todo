@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth-options";
 import dbConnect from "@/lib/db";
 import Notification from "@/models/Notification";
 import User from "@/models/User";
+import { sendPushToUser } from "@/lib/push";
 import { NextResponse } from "next/server";
 
 async function getUserId(session) {
@@ -62,6 +63,14 @@ export async function POST(request) {
       type: body.type || "info",
       link: body.link,
     });
+
+    // Send browser push notification
+    sendPushToUser(userId, {
+      title: body.title,
+      body: body.message,
+      icon: "/icons/Logo.png",
+      url: body.link || "/dashboard/notifications",
+    }).catch(() => {});
 
     return NextResponse.json(notification, { status: 201 });
   } catch (error) {

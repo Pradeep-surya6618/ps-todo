@@ -19,6 +19,8 @@ import {
   Shield,
   Palette,
   Bell,
+  BellOff,
+  Loader2,
 } from "lucide-react";
 
 const FONTS = [
@@ -44,6 +46,8 @@ function SettingsContent() {
   const [activitiesLoading, setActivitiesLoading] = useState(true);
   const [pushSupported, setPushSupported] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
+  const [pushDenied, setPushDenied] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -55,6 +59,7 @@ function SettingsContent() {
     // Check push notification status
     if ("serviceWorker" in navigator && "PushManager" in window) {
       setPushSupported(true);
+      setPushDenied(Notification.permission === "denied");
       navigator.serviceWorker.ready.then((reg) => {
         reg.pushManager.getSubscription().then((sub) => {
           setPushEnabled(!!sub);
@@ -82,6 +87,55 @@ function SettingsContent() {
     );
     document.documentElement.classList.add(fontClass);
     localStorage.setItem("app-font", fontClass);
+  };
+
+  const handlePushToggle = async () => {
+    if (!pushSupported || pushLoading) return;
+    setPushLoading(true);
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      if (pushEnabled) {
+        // Unsubscribe
+        const sub = await registration.pushManager.getSubscription();
+        if (sub) {
+          const endpoint = sub.endpoint;
+          await sub.unsubscribe();
+          await fetch("/api/push/subscribe", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ endpoint }),
+          });
+        }
+        setPushEnabled(false);
+      } else {
+        // Subscribe
+        const base64 = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+        const padding = "=".repeat((4 - (base64.length % 4)) % 4);
+        const raw = atob((base64 + padding).replace(/-/g, "+").replace(/_/g, "/"));
+        const key = new Uint8Array(raw.length);
+        for (let i = 0; i < raw.length; i++) key[i] = raw.charCodeAt(i);
+
+        const sub = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: key,
+        });
+        const serialized = JSON.parse(JSON.stringify(sub));
+        await fetch("/api/push/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(serialized),
+        });
+        setPushEnabled(true);
+        setPushDenied(false);
+      }
+    } catch (err) {
+      console.error("Push toggle failed:", err);
+      if (Notification.permission === "denied") {
+        setPushDenied(true);
+      }
+    } finally {
+      setPushLoading(false);
+    }
   };
 
   const formatDate = (dateStr) => {
@@ -216,8 +270,11 @@ function SettingsContent() {
         <div className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
-                <Bell size={20} />
+              <div className={cn(
+                "p-2.5 rounded-xl",
+                pushEnabled ? "bg-primary/10 text-primary" : "bg-gray-100 dark:bg-zinc-800 text-gray-400",
+              )}>
+                {pushDenied ? <BellOff size={20} /> : <Bell size={20} />}
               </div>
               <div>
                 <p className="font-bold text-foreground text-sm">
@@ -226,24 +283,48 @@ function SettingsContent() {
                 <p className="text-xs text-gray-500">
                   {!pushSupported
                     ? "Not supported in this browser"
-                    : pushEnabled
-                      ? "Enabled"
-                      : "Disabled"}
+                    : pushDenied
+                      ? "Blocked by browser"
+                      : pushEnabled
+                        ? "Enabled"
+                        : "Disabled"}
                 </p>
               </div>
             </div>
-            <div
-              className={cn(
-                "w-3 h-3 rounded-full",
-                pushEnabled
-                  ? "bg-green-500 shadow-[0_0_8px_0_rgba(34,197,94,0.6)]"
-                  : "bg-gray-400",
-              )}
-            />
+            {pushSupported && !pushDenied ? (
+              <button
+                onClick={handlePushToggle}
+                disabled={pushLoading}
+                className="relative w-12 h-7 bg-overlay border border-border rounded-full transition-colors duration-300 data-[state=checked]:bg-primary cursor-pointer disabled:opacity-50"
+                data-state={pushEnabled ? "checked" : "unchecked"}
+              >
+                {pushLoading ? (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Loader2 size={14} className="animate-spin text-primary" />
+                  </div>
+                ) : (
+                  <div
+                    className={cn(
+                      "absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform duration-300 shadow-md",
+                      pushEnabled ? "translate-x-5" : "translate-x-0",
+                    )}
+                  />
+                )}
+              </button>
+            ) : (
+              <div
+                className={cn(
+                  "w-3 h-3 rounded-full",
+                  pushDenied ? "bg-red-400" : "bg-gray-400",
+                )}
+              />
+            )}
           </div>
-          <p className="text-xs text-gray-500 mt-3 ml-[52px]">
-            Manage push notifications from the bell icon in the header
-          </p>
+          {pushDenied && (
+            <p className="text-xs text-red-400 mt-3 ml-[52px]">
+              Notifications are blocked. Please enable them in your browser settings.
+            </p>
+          )}
         </div>
       </motion.div>
 

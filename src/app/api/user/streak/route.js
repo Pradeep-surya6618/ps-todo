@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth-options";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Notification from "@/models/Notification";
+import { sendPushToUser } from "@/lib/push";
 import { NextResponse } from "next/server";
 
 async function getUserId(session) {
@@ -71,12 +72,20 @@ export async function POST() {
 
     // Send milestone notifications
     if ([3, 7, 14, 30, 50, 100].includes(current)) {
+      const milestoneMsg = `Amazing! You've maintained a ${current}-day login streak!`;
       await Notification.create({
         userId,
         title: "Streak Milestone!",
-        message: `Amazing! You've maintained a ${current}-day login streak!`,
+        message: milestoneMsg,
         type: "success",
       });
+      // Send browser push notification
+      sendPushToUser(userId, {
+        title: "Streak Milestone!",
+        body: milestoneMsg,
+        icon: "/icons/Logo.png",
+        url: "/dashboard",
+      }).catch(() => {});
     }
 
     return NextResponse.json({ current, longest, lastLoginDate: today });
