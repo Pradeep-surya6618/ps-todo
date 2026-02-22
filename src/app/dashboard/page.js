@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useTodoStore } from "@/store/useTodoStore";
 import { motion } from "framer-motion";
@@ -31,6 +31,7 @@ export default function Dashboard() {
   const [cycleData, setCycleData] = useState(null);
   const [streak, setStreak] = useState({ current: 0, longest: 0 });
   const [loading, setLoading] = useState(true);
+  const activityLogged = useRef(false);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -58,8 +59,11 @@ export default function Dashboard() {
           setStreak(await streakRes.value.json());
         }
 
-        // Log this visit (fire and forget)
-        fetch("/api/user/activity", { method: "POST" }).catch(() => {});
+        // Log this visit once per mount (fire and forget)
+        if (!activityLogged.current) {
+          activityLogged.current = true;
+          fetch("/api/user/activity", { method: "POST" }).catch(() => {});
+        }
       } catch (e) {
         console.error("Dashboard fetch error:", e);
       } finally {

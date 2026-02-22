@@ -34,7 +34,7 @@ export default function CycleEditDialog({
     e.preventDefault();
     onSave({
       ...formData,
-      periodStartDate: new Date(formData.periodStartDate),
+      periodStartDate: new Date(formData.periodStartDate + "T00:00:00"),
     });
     onClose();
   };

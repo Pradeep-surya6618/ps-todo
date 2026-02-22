@@ -31,5 +31,7 @@ const CalendarEventSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+CalendarEventSchema.index({ userId: 1, date: 1 });
+
 export default mongoose.models.CalendarEvent ||
   mongoose.model("CalendarEvent", CalendarEventSchema);

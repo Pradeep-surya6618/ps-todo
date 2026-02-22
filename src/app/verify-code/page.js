@@ -11,7 +11,7 @@ import BodyScrollLock from "@/components/BodyScrollLock";
 function VerifyCodeForm() {
   const [code, setCode] = useState(["", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
-  const inputRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
+  const inputRefs = useRef([null, null, null, null]);
   const { enqueueSnackbar } = useSnackbar();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -19,7 +19,7 @@ function VerifyCodeForm() {
 
   useEffect(() => {
     // Focus first input on mount
-    inputRefs[0].current?.focus();
+    inputRefs.current[0]?.focus();
   }, []);
 
   const handleChange = (index, value) => {
@@ -32,14 +32,14 @@ function VerifyCodeForm() {
 
     // Auto-focus next input
     if (value && index < 3) {
-      inputRefs[index + 1].current?.focus();
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (index, e) => {
     // Handle backspace
     if (e.key === "Backspace" && !code[index] && index > 0) {
-      inputRefs[index - 1].current?.focus();
+      inputRefs.current[index - 1]?.focus();
     }
   };
 
@@ -51,7 +51,7 @@ function VerifyCodeForm() {
     if (/^\d{4}$/.test(pastedData)) {
       const newCode = pastedData.split("");
       setCode(newCode);
-      inputRefs[3].current?.focus();
+      inputRefs.current[3]?.focus();
     }
   };
 
@@ -83,7 +83,7 @@ function VerifyCodeForm() {
       } else {
         enqueueSnackbar(data.error || "Invalid code", { variant: "error" });
         setCode(["", "", "", ""]);
-        inputRefs[0].current?.focus();
+        inputRefs.current[0]?.focus();
       }
     } catch (error) {
       console.error("Error:", error);
@@ -104,7 +104,7 @@ function VerifyCodeForm() {
       if (res.ok) {
         enqueueSnackbar("New code sent to your email!", { variant: "success" });
         setCode(["", "", "", ""]);
-        inputRefs[0].current?.focus();
+        inputRefs.current[0]?.focus();
       } else {
         enqueueSnackbar("Failed to resend code", { variant: "error" });
       }
@@ -168,7 +168,7 @@ function VerifyCodeForm() {
                 {code.map((digit, index) => (
                   <input
                     key={index}
-                    ref={inputRefs[index]}
+                    ref={(el) => { inputRefs.current[index] = el; }}
                     type="text"
                     inputMode="numeric"
                     maxLength={1}
@@ -262,7 +262,6 @@ export default function VerifyCode() {
         </div>
       }
     >
-      <BodyScrollLock />
       <VerifyCodeForm />
     </Suspense>
   );

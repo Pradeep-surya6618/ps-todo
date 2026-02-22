@@ -24,4 +24,6 @@ const TodoSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+TodoSchema.index({ userId: 1 });
+
 export default mongoose.models.Todo || mongoose.model("Todo", TodoSchema);

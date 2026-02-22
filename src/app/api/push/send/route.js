@@ -6,11 +6,13 @@ import User from "@/models/User";
 import webpush from "web-push";
 import { NextResponse } from "next/server";
 
-webpush.setVapidDetails(
-  "mailto:sunmoonie@app.com",
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
-  process.env.VAPID_PRIVATE_KEY,
-);
+if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    "mailto:sunmoonie@app.com",
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY,
+  );
+}
 
 async function getUserId(session) {
   if (!session?.user?.id && session?.user?.email) {
@@ -23,6 +25,10 @@ async function getUserId(session) {
 
 export async function POST(request) {
   try {
+    if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
+      return NextResponse.json({ error: "Push notifications not configured" }, { status: 503 });
+    }
+
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

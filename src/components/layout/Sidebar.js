@@ -14,11 +14,8 @@ import {
   ChevronRight,
   Bell,
 } from "lucide-react";
-import { signOut } from "next-auth/react";
 import { useNavStore } from "@/store/useNavStore";
 import { cn } from "@/lib/utils";
-import LogoutConfirmationDialog from "../LogoutConfirmationDialog";
-import { useState } from "react";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },

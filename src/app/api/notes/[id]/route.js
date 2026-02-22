@@ -26,16 +26,17 @@ export async function PUT(request, { params }) {
     const { id } = await params;
     const body = await request.json();
 
+    const safeUpdates = {};
+    if (body.title !== undefined) safeUpdates.title = body.title;
+    if (body.content !== undefined) safeUpdates.content = body.content;
+    if (body.color !== undefined) safeUpdates.color = body.color;
+    if (body.isPinned !== undefined) safeUpdates.isPinned = body.isPinned;
+    if (body.tags !== undefined) safeUpdates.tags = body.tags;
+    if (body.isArchived !== undefined) safeUpdates.isArchived = body.isArchived;
+
     const note = await Note.findOneAndUpdate(
       { _id: id, userId },
-      {
-        title: body.title,
-        content: body.content,
-        color: body.color,
-        isPinned: body.isPinned,
-        tags: body.tags,
-        isArchived: body.isArchived,
-      },
+      { $set: safeUpdates },
       { new: true },
     );
 

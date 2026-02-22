@@ -13,11 +13,8 @@ import {
   Activity,
   FileText,
 } from "lucide-react";
-import { signOut } from "next-auth/react";
 import { useNavStore } from "@/store/useNavStore";
 import { cn } from "@/lib/utils";
-import LogoutConfirmationDialog from "../LogoutConfirmationDialog";
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const menuItems = [

@@ -11,10 +11,8 @@ export async function PATCH(req) {
 
   try {
     const rawBody = await req.text();
-    console.log("Incoming request body size:", rawBody.length, "bytes");
 
     if (rawBody.length > 5 * 1024 * 1024) {
-      // 5MB limit check (Base64 of 3MB is ~4MB)
       return NextResponse.json(
         { error: "Payload too large. Please use a smaller image." },
         { status: 413 },
@@ -25,11 +23,6 @@ export async function PATCH(req) {
       JSON.parse(rawBody);
     await dbConnect();
 
-    console.log(
-      "Updating user by ID or Email:",
-      session.user.id,
-      session.user.email,
-    );
     const user = await User.findOneAndUpdate(
       { $or: [{ _id: session.user.id }, { email: session.user.email }] },
       {
@@ -47,14 +40,12 @@ export async function PATCH(req) {
     );
 
     if (!user) {
-      console.log("User not found in DB:", session.user.email);
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    console.log("User updated successfully:", user.email);
     return NextResponse.json(user);
   } catch (error) {
-    console.error("API Error in onboard route:", error);
+    console.error("Onboard route error:", error.message);
     return NextResponse.json(
       { error: error.message || "Internal Server Error" },
       { status: 500 },

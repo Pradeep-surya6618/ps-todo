@@ -2,7 +2,7 @@
 
 import BodyScrollLock from "@/components/BodyScrollLock";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSnackbar } from "notistack";
 import { Send, Heart } from "lucide-react";
@@ -12,6 +12,13 @@ export default function ForgotPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
+  const redirectTimer = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimer.current) clearTimeout(redirectTimer.current);
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,7 +39,7 @@ export default function ForgotPassword() {
           variant: "success",
         });
         // Redirect to verification page after 2 seconds
-        setTimeout(() => {
+        redirectTimer.current = setTimeout(() => {
           window.location.href = `/verify-code?email=${encodeURIComponent(email)}`;
         }, 2000);
       } else {

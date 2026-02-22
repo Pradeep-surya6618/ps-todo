@@ -59,15 +59,52 @@ export async function POST(request) {
     const forwarded = request.headers.get("x-forwarded-for");
     const ip = forwarded ? forwarded.split(",")[0].trim() : "127.0.0.1";
 
-    // Add to loginActivity, keep last 20 entries
-    await User.findByIdAndUpdate(userId, {
-      $push: {
-        loginActivity: {
-          $each: [{ browser, os, device, ip, loginAt: new Date() }],
-          $slice: -20,
+    // Only log one entry per day per browser/os/device combo
+    const now = new Date();
+    const startOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const endOfDay = new Date(startOfDay.getTime() + 86400000);
+
+    // Check if there's already an entry today for this browser/os/device
+    const existing = await User.findOne({
+      _id: userId,
+      loginActivity: {
+        $elemMatch: {
+          browser,
+          os,
+          device,
+          loginAt: { $gte: startOfDay, $lt: endOfDay },
         },
       },
     });
+
+    if (existing) {
+      // Update the existing entry's timestamp and IP
+      await User.updateOne(
+        {
+          _id: userId,
+          "loginActivity.browser": browser,
+          "loginActivity.os": os,
+          "loginActivity.device": device,
+          "loginActivity.loginAt": { $gte: startOfDay, $lt: endOfDay },
+        },
+        {
+          $set: {
+            "loginActivity.$.loginAt": now,
+            "loginActivity.$.ip": ip,
+          },
+        },
+      );
+    } else {
+      // Add new entry, keep last 20
+      await User.findByIdAndUpdate(userId, {
+        $push: {
+          loginActivity: {
+            $each: [{ browser, os, device, ip, loginAt: now }],
+            $slice: -20,
+          },
+        },
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -35,7 +35,7 @@ export default function CustomDatePicker({
   // Initialize state from value prop
   useEffect(() => {
     if (value) {
-      const parsedDate = new Date(value);
+      const parsedDate = new Date(value + "T00:00:00");
       if (!isNaN(parsedDate.getTime())) {
         setSelectedDate(parsedDate);
         setCurrentDate(parsedDate);

@@ -26,7 +26,7 @@ export async function POST(request) {
     const subscription = await request.json();
 
     await PushSubscription.findOneAndUpdate(
-      { endpoint: subscription.endpoint },
+      { endpoint: subscription.endpoint, userId },
       {
         userId,
         endpoint: subscription.endpoint,
@@ -52,9 +52,10 @@ export async function DELETE(request) {
     }
 
     await dbConnect();
+    const userId = await getUserId(session);
     const { endpoint } = await request.json();
 
-    await PushSubscription.deleteOne({ endpoint });
+    await PushSubscription.deleteOne({ endpoint, userId });
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json(

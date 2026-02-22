@@ -94,6 +94,15 @@
   }
 }
 
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
 :root {
   --background: #fdf2f8;
   --foreground: #1e293b;
@@ -120,7 +129,7 @@
 
 html,
 body {
-  height: 100dvh;
+  min-height: 100dvh;
   overscroll-behavior: none;
 }
 
@@ -207,6 +216,10 @@ body {
 
   .animate-gradient {
     animation: gradient 3s ease infinite;
+  }
+
+  .animate-marquee {
+    animation: marquee 25s linear infinite;
   }
 }
 

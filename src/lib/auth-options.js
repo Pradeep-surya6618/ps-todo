@@ -10,8 +10,8 @@ export const authOptions = {
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "dummy",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "dummy",
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -20,19 +20,14 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log("Authorize attempt for:", credentials.email);
         await dbConnect();
-        const user = await User.findOne({ email: credentials.email }).select(
+        const user = await User.findOne({ email: credentials.email.toLowerCase().trim() }).select(
           "+password",
         );
         if (!user) {
-          console.log("Authorize failed: User not found");
           throw new Error("No user found with this email");
         }
         if (!user.password) {
-          console.log(
-            "Authorize failed: No password on user (Google account?)",
-          );
           throw new Error("Please use Google to sign in");
         }
         const isValid = await bcrypt.compare(
@@ -40,10 +35,8 @@ export const authOptions = {
           user.password,
         );
         if (!isValid) {
-          console.log("Authorize failed: Incorrect password");
           throw new Error("Incorrect password");
         }
-        console.log("Authorize successful for:", credentials.email);
         return {
           id: user._id.toString(),
           email: user.email,
@@ -74,18 +67,11 @@ export const authOptions = {
         // Fetch fresh user data from DB to ensure sync
         try {
           await dbConnect();
-          console.log("Session callback: Looking up user with:", {
-            sub: token.sub,
-            email: token.email,
-          });
           const dbUser = await User.findOne({
             $or: [{ _id: token.sub }, { email: token.email }],
           });
 
           if (dbUser) {
-            console.log(
-              "Session callback: User found in DB, updating session object.",
-            );
             session.user.isOnboarded = dbUser.isOnboarded;
             session.user.image = dbUser.image;
             session.user.role = dbUser.role;
@@ -96,9 +82,6 @@ export const authOptions = {
             session.user.mobile = dbUser.mobile;
             session.user.location = dbUser.location;
           } else {
-            console.warn(
-              "Session callback: User NOT found in DB. Falling back to token.",
-            );
             session.user.isOnboarded = token.isOnboarded;
             session.user.image = token.image;
             session.user.name = token.name;
@@ -152,7 +135,6 @@ export const authOptions = {
         // Force token change to trigger session refresh
         token.lastUpdated = Date.now();
       }
-      console.log("Returning token:", token);
       return token;
     },
   },

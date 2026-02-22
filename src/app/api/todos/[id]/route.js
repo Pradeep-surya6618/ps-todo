@@ -18,9 +18,15 @@ export async function PATCH(req, { params }) {
   }
   await dbConnect();
   try {
+    const { title, completed, priority } = updates;
+    const safeUpdates = {};
+    if (title !== undefined) safeUpdates.title = title;
+    if (completed !== undefined) safeUpdates.completed = completed;
+    if (priority !== undefined) safeUpdates.priority = priority;
+
     const todo = await Todo.findOneAndUpdate(
       { _id: id, userId: session.user.id },
-      updates,
+      safeUpdates,
       { new: true },
     );
     if (!todo)

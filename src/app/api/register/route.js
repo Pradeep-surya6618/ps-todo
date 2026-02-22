@@ -3,20 +3,22 @@ import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
 
-export async function GET() {
-  return NextResponse.json({
-    status: "active",
-    message: "Registration API is ready",
-  });
-}
-
 export async function POST(req) {
   try {
-    const { name, email, password } = await req.json();
+    const { name, email: rawEmail, password } = await req.json();
 
-    if (!name || !email || !password) {
+    if (!name || !rawEmail || !password) {
       return NextResponse.json(
         { error: "Please provide name, email and password" },
+        { status: 400 },
+      );
+    }
+
+    const email = rawEmail.toLowerCase().trim();
+
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: "Password must be at least 8 characters" },
         { status: 400 },
       );
     }

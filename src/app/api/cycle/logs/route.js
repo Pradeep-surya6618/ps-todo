@@ -35,9 +35,9 @@ export async function POST(req) {
     }
 
     // Upsert the log for this date
-    // Convert date string to Date object (midnight) to normalize
-    const logDate = new Date(date);
-    logDate.setHours(0, 0, 0, 0);
+    // Parse as UTC midnight to avoid timezone mismatches
+    const parts = date.split("-");
+    const logDate = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])));
 
     const log = await CycleLog.findOneAndUpdate(
       { userId, date: logDate },

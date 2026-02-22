@@ -19,8 +19,10 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const registered = searchParams.get("registered");
 
+  const shownRegistered = useRef(false);
   useEffect(() => {
-    if (registered) {
+    if (registered && !shownRegistered.current) {
+      shownRegistered.current = true;
       enqueueSnackbar("Account created! Please log in.", {
         variant: "success",
       });

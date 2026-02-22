@@ -160,7 +160,6 @@ export default function ProfilePage() {
       reader.onloadend = () => {
         setIsLoading(false);
         setSelectedAvatar(reader.result);
-        console.log("Image loaded, size:", reader.result.length);
       };
       reader.readAsDataURL(file);
     }
@@ -256,20 +255,8 @@ export default function ProfilePage() {
         image: selectedAvatar || formData.image,
       };
 
-      console.log(
-        "Initiating profile update. Payload fields:",
-        Object.keys(updatedData),
-      );
-      console.log(
-        "Image present:",
-        !!updatedData.image,
-        "Size:",
-        updatedData.image?.length || 0,
-      );
-
       const payloadString = JSON.stringify(updatedData);
       const payloadSize = new Blob([payloadString]).size;
-      console.log("Total payload size:", payloadSize, "bytes");
 
       if (payloadSize > 4.5 * 1024 * 1024) {
         enqueueSnackbar(
@@ -289,8 +276,6 @@ export default function ProfilePage() {
       });
 
       if (res.ok) {
-        console.log("API Success. Triggering session sync...");
-
         // Trigger a session update without the image.
         // auth-options.js is now configured to NOT store image in JWT.
         const { image, ...minimalData } = formData;
@@ -311,7 +296,6 @@ export default function ProfilePage() {
         }, 800);
       } else {
         const errorText = await res.text();
-        console.error("API Failure:", res.status, errorText);
         let errorMessage = "Save failed";
         try {
           const errorData = JSON.parse(errorText);
@@ -321,7 +305,6 @@ export default function ProfilePage() {
         enqueueSnackbar(errorMessage, { variant: "error" });
       }
     } catch (err) {
-      console.error("Network Exception:", err);
       enqueueSnackbar("Network error: " + err.message, { variant: "error" });
     } finally {
       setIsLoading(false);

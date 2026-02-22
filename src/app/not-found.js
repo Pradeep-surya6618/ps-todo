@@ -1,31 +1,21 @@
-"use client";
-
 import Link from "next/link";
 import { Home, ArrowLeft, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
 
 export default function NotFound() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden relative flex items-center justify-center transition-colors duration-500">
       {/* Animated Space Background */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Stars */}
-        {mounted &&
-          [...Array(50)].map((_, i) => (
+        {[...Array(50)].map((_, i) => (
             <div
               key={`star-${i}`}
               className="absolute w-1 h-1 bg-white rounded-full animate-pulse-slow"
               style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                opacity: Math.random() * 0.7 + 0.3,
+                top: `${((i * 37 + 13) % 97)}%`,
+                left: `${((i * 53 + 7) % 99)}%`,
+                animationDelay: `${(i * 0.06) % 3}s`,
+                opacity: (i % 7) * 0.1 + 0.3,
               }}
             />
           ))}

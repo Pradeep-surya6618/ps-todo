@@ -36,27 +36,21 @@ export const useTodoStore = create((set, get) => ({
     const todo = get().todos.find((t) => t._id === id);
     if (!todo) return;
 
-    const prevCompleted = todo.completed;
+    const oldTodos = get().todos;
     try {
       set({
-        todos: get().todos.map((t) =>
-          t._id === id ? { ...t, completed: !prevCompleted } : t,
+        todos: oldTodos.map((t) =>
+          t._id === id ? { ...t, completed: !todo.completed } : t,
         ),
       });
       const res = await fetch(`/api/todos/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ completed: !prevCompleted }),
+        body: JSON.stringify({ completed: !todo.completed }),
       });
       if (!res.ok) throw new Error("Failed to toggle todo");
     } catch (error) {
-      set({ error: error.message });
-      // Revert on error
-      set({
-        todos: get().todos.map((t) =>
-          t._id === id ? { ...t, completed: prevCompleted } : t,
-        ),
-      });
+      set({ error: error.message, todos: oldTodos });
     }
   },
 

@@ -37,13 +37,32 @@ export async function PATCH(req) {
     }
 
     const body = await req.json();
-    // Validate body if necessary (e.g. check ranges)
+
+    // Validate cycle config fields
+    const safeConfig = {};
+    if (body.cycleLength !== undefined) {
+      const len = Number(body.cycleLength);
+      if (isNaN(len) || len < 20 || len > 45) {
+        return NextResponse.json({ error: "Cycle length must be between 20 and 45" }, { status: 400 });
+      }
+      safeConfig.cycleLength = len;
+    }
+    if (body.periodLength !== undefined) {
+      const len = Number(body.periodLength);
+      if (isNaN(len) || len < 2 || len > 10) {
+        return NextResponse.json({ error: "Period length must be between 2 and 10" }, { status: 400 });
+      }
+      safeConfig.periodLength = len;
+    }
+    if (body.periodStartDate !== undefined) {
+      safeConfig.periodStartDate = body.periodStartDate;
+    }
 
     await dbConnect();
 
     const updatedUser = await User.findOneAndUpdate(
       { email: session.user.email },
-      { $set: { cycleConfig: body } },
+      { $set: { cycleConfig: { ...safeConfig } } },
       { new: true },
     )
       .select("cycleConfig")
