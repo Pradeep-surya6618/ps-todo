@@ -30,34 +30,35 @@ export async function POST() {
     }
 
     const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    // Use UTC to avoid timezone mismatches between dev (IST) and prod (UTC)
+    const todayMs = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    const today = new Date(todayMs);
+
     const lastLogin = user.streak?.lastLoginDate
       ? new Date(user.streak.lastLoginDate)
       : null;
-    const lastLoginDay = lastLogin
-      ? new Date(
-          lastLogin.getFullYear(),
-          lastLogin.getMonth(),
-          lastLogin.getDate(),
-        )
+    const lastLoginMs = lastLogin
+      ? Date.UTC(lastLogin.getUTCFullYear(), lastLogin.getUTCMonth(), lastLogin.getUTCDate())
       : null;
 
     let current = user.streak?.current || 0;
     let longest = user.streak?.longest || 0;
 
-    if (lastLoginDay && lastLoginDay.getTime() === today.getTime()) {
+    // Calculate difference in days using UTC
+    const diffDays = lastLoginMs !== null
+      ? Math.round((todayMs - lastLoginMs) / (1000 * 60 * 60 * 24))
+      : null;
+
+    if (diffDays === 0) {
       // Same day — no update needed
       return NextResponse.json({ current, longest, lastLoginDate: today });
     }
 
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    if (lastLoginDay && lastLoginDay.getTime() === yesterday.getTime()) {
+    if (diffDays === 1) {
       // Consecutive day — increment streak
       current += 1;
     } else {
-      // Streak broken — reset to 1
+      // Streak broken or first login — reset to 1
       current = 1;
     }
 
