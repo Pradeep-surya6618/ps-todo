@@ -28,7 +28,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { date, symptoms } = await req.json();
+    const { date, symptoms, mood, flowIntensity, note } = await req.json();
 
     if (!date) {
       return NextResponse.json({ error: "Date is required" }, { status: 400 });
@@ -41,7 +41,7 @@ export async function POST(req) {
 
     const log = await CycleLog.findOneAndUpdate(
       { userId, date: logDate },
-      { $set: { symptoms } },
+      { $set: { symptoms, mood: mood || "", flowIntensity: flowIntensity || "", note: note || "" } },
       { upsert: true, new: true },
     );
 

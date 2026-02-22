@@ -12,6 +12,11 @@ import {
   Edit3,
   X,
   StickyNote,
+  Archive,
+  ArchiveRestore,
+  ArrowUpDown,
+  LayoutGrid,
+  List,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSnackbar } from "notistack";
@@ -37,6 +42,12 @@ export default function NotesPage() {
     updateNote,
     deleteNote,
     togglePin,
+    archiveNote,
+    restoreNote,
+    showArchived,
+    setShowArchived,
+    sortBy,
+    setSortBy,
   } = useNoteStore();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -50,10 +61,33 @@ export default function NotesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [expandedNote, setExpandedNote] = useState(null);
+  const [viewMode, setViewMode] = useState("grid");
+  const [showSortMenu, setShowSortMenu] = useState(false);
 
   useEffect(() => {
     fetchNotes();
   }, [fetchNotes]);
+
+  const handleArchiveToggle = (archived) => {
+    setShowArchived(archived);
+    setTimeout(() => fetchNotes(), 0);
+  };
+
+  const handleSortChange = (sort) => {
+    setSortBy(sort);
+    setShowSortMenu(false);
+    setTimeout(() => fetchNotes(), 0);
+  };
+
+  const handleArchive = async (id) => {
+    await archiveNote(id);
+    enqueueSnackbar("Note archived", { variant: "success" });
+  };
+
+  const handleRestore = async (id) => {
+    await restoreNote(id);
+    enqueueSnackbar("Note restored", { variant: "success" });
+  };
 
   const filteredNotes = useMemo(() => {
     if (!searchQuery) return notes;
@@ -164,6 +198,73 @@ export default function NotesPage() {
           />
         </div>
 
+        {/* Toolbar */}
+        <div className="flex items-center justify-between gap-2">
+          {/* Archive Toggle */}
+          <div className="flex bg-card border border-border rounded-xl p-1">
+            <button
+              onClick={() => handleArchiveToggle(false)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${!showArchived ? "bg-primary text-white shadow-md" : "text-gray-500"}`}
+            >
+              Notes
+            </button>
+            <button
+              onClick={() => handleArchiveToggle(true)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${showArchived ? "bg-primary text-white shadow-md" : "text-gray-500"}`}
+            >
+              <Archive size={12} /> Archived
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Sort */}
+            <div className="relative">
+              <button
+                onClick={() => setShowSortMenu(!showSortMenu)}
+                className="p-2 bg-card border border-border rounded-xl text-gray-500 hover:text-primary transition-colors cursor-pointer"
+              >
+                <ArrowUpDown size={16} />
+              </button>
+              {showSortMenu && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowSortMenu(false)} />
+                  <div className="absolute right-0 top-full mt-1 bg-card border border-border rounded-xl shadow-xl z-50 py-1 min-w-[140px]">
+                    {[
+                      { label: "Last Updated", value: "updatedAt" },
+                      { label: "Date Created", value: "createdAt" },
+                      { label: "Alphabetical", value: "title" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={() => handleSortChange(opt.value)}
+                        className={`w-full px-3 py-2 text-left text-xs font-bold transition-colors cursor-pointer ${sortBy === opt.value ? "text-primary bg-primary/5" : "text-gray-500 hover:bg-primary/5"}`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* View Toggle */}
+            <div className="flex bg-card border border-border rounded-xl p-1">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${viewMode === "grid" ? "bg-primary text-white shadow-md" : "text-gray-500"}`}
+              >
+                <LayoutGrid size={14} />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${viewMode === "list" ? "bg-primary text-white shadow-md" : "text-gray-500"}`}
+              >
+                <List size={14} />
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Loading */}
         {isLoading ? (
           <div className="space-y-6">
@@ -228,13 +329,17 @@ export default function NotesPage() {
                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1 flex items-center gap-1.5">
                   <Pin size={12} /> Pinned
                 </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className={viewMode === "grid" ? "grid grid-cols-2 sm:grid-cols-3 gap-3" : "flex flex-col gap-2"}>
                   {pinnedNotes.map((note) => (
                     <NoteCard
                       key={note._id}
                       note={note}
+                      viewMode={viewMode}
+                      showArchived={showArchived}
                       onEdit={() => openEditor(note)}
                       onDelete={() => setDeleteConfirm(note._id)}
+                      onArchive={() => handleArchive(note._id)}
+                      onRestore={() => handleRestore(note._id)}
                       onPin={() => handlePin(note._id)}
                       onExpand={() => setExpandedNote(note)}
                     />
@@ -251,13 +356,17 @@ export default function NotesPage() {
                     Others
                   </h3>
                 )}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className={viewMode === "grid" ? "grid grid-cols-2 sm:grid-cols-3 gap-3" : "flex flex-col gap-2"}>
                   {unpinnedNotes.map((note) => (
                     <NoteCard
                       key={note._id}
                       note={note}
+                      viewMode={viewMode}
+                      showArchived={showArchived}
                       onEdit={() => openEditor(note)}
                       onDelete={() => setDeleteConfirm(note._id)}
+                      onArchive={() => handleArchive(note._id)}
+                      onRestore={() => handleRestore(note._id)}
                       onPin={() => handlePin(note._id)}
                       onExpand={() => setExpandedNote(note)}
                     />
@@ -306,13 +415,19 @@ export default function NotesPage() {
                     className="w-full text-lg font-black text-foreground bg-transparent border-none outline-none placeholder:text-gray-300"
                   />
 
-                  <textarea
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="Write your note..."
-                    rows={8}
-                    className="w-full text-sm font-medium text-foreground bg-transparent border border-border rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none transition-colors"
-                  />
+                  <div>
+                    <textarea
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      placeholder="Write your note..."
+                      rows={8}
+                      className="w-full text-sm font-medium text-foreground bg-transparent border border-border rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none transition-colors"
+                    />
+                    <div className="flex justify-end gap-3 mt-1 text-[10px] text-gray-400 font-medium">
+                      <span>{content.length} chars</span>
+                      <span>{content.trim() ? content.trim().split(/\s+/).length : 0} words</span>
+                    </div>
+                  </div>
 
                   {/* Color Picker */}
                   <div className="space-y-2">
@@ -514,7 +629,54 @@ export default function NotesPage() {
   );
 }
 
-function NoteCard({ note, onEdit, onDelete, onPin, onExpand }) {
+function NoteCard({ note, viewMode, showArchived, onEdit, onDelete, onArchive, onRestore, onPin, onExpand }) {
+  if (viewMode === "list") {
+    return (
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -10 }}
+        onClick={onExpand}
+        className="group flex items-center gap-3 p-3 rounded-2xl cursor-pointer hover:shadow-md transition-all duration-300"
+        style={{
+          backgroundColor: `${note.color}08`,
+          border: `1px solid ${note.color}20`,
+        }}
+      >
+        <div className="w-1 h-8 rounded-full shrink-0" style={{ backgroundColor: note.color }} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h4 className="font-bold text-sm text-foreground truncate">{note.title}</h4>
+            {note.isPinned && <Pin size={10} style={{ color: note.color }} className="shrink-0" />}
+          </div>
+          <p className="text-[11px] text-muted-foreground truncate opacity-70">
+            {note.content || "No content"}
+          </p>
+        </div>
+        {note.tags?.length > 0 && (
+          <span className="text-[8px] font-bold px-1.5 py-0.5 rounded shrink-0 hidden sm:block" style={{ color: note.color, backgroundColor: `${note.color}15` }}>
+            {note.tags[0]}{note.tags.length > 1 ? ` +${note.tags.length - 1}` : ""}
+          </span>
+        )}
+        <span className="text-[9px] text-gray-400 font-medium shrink-0">{format(new Date(note.updatedAt), "MMM d")}</span>
+        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+          {showArchived ? (
+            <>
+              <button onClick={(e) => { e.stopPropagation(); onRestore(); }} className="p-1 hover:bg-primary/10 rounded text-gray-400 hover:text-primary cursor-pointer"><ArchiveRestore size={13} /></button>
+              <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="p-1 hover:bg-red-500/10 rounded text-gray-400 hover:text-red-500 cursor-pointer"><Trash2 size={13} /></button>
+            </>
+          ) : (
+            <>
+              <button onClick={(e) => { e.stopPropagation(); onPin(); }} className="p-1 hover:bg-primary/10 rounded text-gray-400 hover:text-primary cursor-pointer">{note.isPinned ? <PinOff size={13} /> : <Pin size={13} />}</button>
+              <button onClick={(e) => { e.stopPropagation(); onEdit(); }} className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded text-gray-400 hover:text-foreground cursor-pointer"><Edit3 size={13} /></button>
+              <button onClick={(e) => { e.stopPropagation(); onArchive(); }} className="p-1 hover:bg-amber-500/10 rounded text-gray-400 hover:text-amber-500 cursor-pointer"><Archive size={13} /></button>
+            </>
+          )}
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ scale: 0.95, opacity: 0 }}
@@ -568,33 +730,20 @@ function NoteCard({ note, onEdit, onDelete, onPin, onExpand }) {
           {format(new Date(note.updatedAt), "MMM d")}
         </span>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onPin();
-            }}
-            className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded text-gray-400 hover:text-primary transition-colors cursor-pointer"
-          >
-            {note.isPinned ? <PinOff size={11} /> : <Pin size={11} />}
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit();
-            }}
-            className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded text-gray-400 hover:text-foreground transition-colors cursor-pointer"
-          >
-            <Edit3 size={11} />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="p-1 hover:bg-red-500/10 rounded text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
-          >
-            <Trash2 size={11} />
-          </button>
+          {showArchived ? (
+            <>
+              <button onClick={(e) => { e.stopPropagation(); onRestore(); }} className="p-1 hover:bg-primary/10 rounded text-gray-400 hover:text-primary transition-colors cursor-pointer"><ArchiveRestore size={11} /></button>
+              <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="p-1 hover:bg-red-500/10 rounded text-gray-400 hover:text-red-500 transition-colors cursor-pointer"><Trash2 size={11} /></button>
+            </>
+          ) : (
+            <>
+              <button onClick={(e) => { e.stopPropagation(); onPin(); }} className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded text-gray-400 hover:text-primary transition-colors cursor-pointer">
+                {note.isPinned ? <PinOff size={11} /> : <Pin size={11} />}
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); onEdit(); }} className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded text-gray-400 hover:text-foreground transition-colors cursor-pointer"><Edit3 size={11} /></button>
+              <button onClick={(e) => { e.stopPropagation(); onArchive(); }} className="p-1 hover:bg-amber-500/10 rounded text-gray-400 hover:text-amber-500 transition-colors cursor-pointer"><Archive size={11} /></button>
+            </>
+          )}
         </div>
       </div>
     </motion.div>

@@ -15,6 +15,21 @@ const CycleLogSchema = new mongoose.Schema(
       type: [String], // e.g. ["cramps", "headache"]
       default: [],
     },
+    mood: {
+      type: String,
+      enum: ["great", "good", "okay", "bad", "awful", ""],
+      default: "",
+    },
+    flowIntensity: {
+      type: String,
+      enum: ["spot", "light", "medium", "heavy", ""],
+      default: "",
+    },
+    note: {
+      type: String,
+      default: "",
+      maxlength: 500,
+    },
   },
   { timestamps: true },
 );

@@ -4,16 +4,37 @@ import { authOptions } from "@/lib/auth-options";
 import dbConnect from "@/lib/db";
 import CalendarEvent from "@/models/CalendarEvent";
 
-export async function GET() {
+export async function GET(req) {
   const session = await getServerSession(authOptions);
   if (!session)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   await dbConnect();
   try {
-    const events = await CalendarEvent.find({ userId: session.user.id }).sort({
-      date: 1,
-    });
+    const { searchParams } = new URL(req.url);
+    const search = searchParams.get("search");
+    const type = searchParams.get("type");
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
+
+    let query = { userId: session.user.id };
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+    if (type) {
+      query.type = type;
+    }
+    if (from || to) {
+      query.date = {};
+      if (from) query.date.$gte = new Date(from);
+      if (to) query.date.$lte = new Date(to);
+    }
+
+    const events = await CalendarEvent.find(query).sort({ date: 1 });
     return NextResponse.json(events);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

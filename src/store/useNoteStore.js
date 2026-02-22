@@ -6,17 +6,23 @@ export const useNoteStore = create((set, get) => ({
   error: null,
   searchQuery: "",
   activeTag: null,
+  showArchived: false,
+  sortBy: "updatedAt",
 
   setSearchQuery: (query) => set({ searchQuery: query }),
   setActiveTag: (tag) => set({ activeTag: tag }),
+  setShowArchived: (val) => set({ showArchived: val }),
+  setSortBy: (val) => set({ sortBy: val }),
 
   fetchNotes: async () => {
     set({ isLoading: true, error: null });
     try {
-      const { searchQuery, activeTag } = get();
+      const { searchQuery, activeTag, showArchived, sortBy } = get();
       const params = new URLSearchParams();
       if (searchQuery) params.set("search", searchQuery);
       if (activeTag) params.set("tag", activeTag);
+      if (showArchived) params.set("archived", "true");
+      params.set("sort", sortBy);
 
       const res = await fetch(`/api/notes?${params}`);
       const data = await res.json();
@@ -78,6 +84,39 @@ export const useNoteStore = create((set, get) => ({
       if (!res.ok) throw new Error("Failed to delete note");
     } catch (error) {
       set({ error: error.message, notes: oldNotes });
+    }
+  },
+
+  archiveNote: async (id) => {
+    const note = get().notes.find((n) => n._id === id);
+    if (!note) return;
+    // Optimistic: remove from current view
+    set({ notes: get().notes.filter((n) => n._id !== id) });
+    try {
+      const res = await fetch(`/api/notes/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...note, isArchived: true }),
+      });
+      if (!res.ok) throw new Error("Failed to archive note");
+    } catch (error) {
+      set({ error: error.message, notes: [note, ...get().notes] });
+    }
+  },
+
+  restoreNote: async (id) => {
+    const note = get().notes.find((n) => n._id === id);
+    if (!note) return;
+    set({ notes: get().notes.filter((n) => n._id !== id) });
+    try {
+      const res = await fetch(`/api/notes/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...note, isArchived: false }),
+      });
+      if (!res.ok) throw new Error("Failed to restore note");
+    } catch (error) {
+      set({ error: error.message, notes: [note, ...get().notes] });
     }
   },
 

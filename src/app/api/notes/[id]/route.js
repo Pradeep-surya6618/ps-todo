@@ -34,6 +34,7 @@ export async function PUT(request, { params }) {
         color: body.color,
         isPinned: body.isPinned,
         tags: body.tags,
+        isArchived: body.isArchived,
       },
       { new: true },
     );

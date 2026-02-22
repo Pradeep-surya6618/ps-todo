@@ -24,6 +24,7 @@ export default function CycleCalendar({
   predictedPeriodStart,
   periodLength = 5,
   onDateClick,
+  logs = [],
 }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
@@ -100,11 +101,18 @@ export default function CycleCalendar({
           const isPeriod = isPeriodDay(day);
           const isPredicted = isPredictedPeriodDay(day);
           const isTodayDate = isToday(day);
+          const dayLog = logs.find((log) =>
+            isSameDay(new Date(log.date), day),
+          );
+          const hasMood = dayLog?.mood;
+          const hasFlow = dayLog?.flowIntensity;
+          const hasSymptoms =
+            dayLog?.symptoms && dayLog.symptoms.length > 0;
 
           return (
             <div
               key={day.toString()}
-              className="flex flex-col items-center justify-center relative h-10 w-full"
+              className="flex flex-col items-center justify-center relative h-12 w-full"
             >
               <motion.button
                 whileTap={{ scale: 0.9 }}
@@ -133,8 +141,16 @@ export default function CycleCalendar({
               </motion.button>
 
               {/* Markers below date */}
-              <div className="h-1 mt-1 flex gap-0.5">
-                {/* Potential space for other tracking dots (mood, symptoms) */}
+              <div className="h-1.5 mt-0.5 flex gap-0.5 items-center justify-center">
+                {hasMood && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
+                )}
+                {hasFlow && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-400 inline-block" />
+                )}
+                {hasSymptoms && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />
+                )}
               </div>
             </div>
           );
@@ -142,17 +158,29 @@ export default function CycleCalendar({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-4 mt-4 pt-4 border-t border-border/50">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-center gap-3 mt-4 pt-4 border-t border-border/50">
+        <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-full bg-rose-500"></div>
           <span className="text-xs text-muted-foreground font-medium">
             Period
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-full border-2 border-rose-300 border-dashed"></div>
           <span className="text-xs text-muted-foreground font-medium">
             Predicted
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-amber-400"></div>
+          <span className="text-xs text-muted-foreground font-medium">
+            Mood
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-blue-400"></div>
+          <span className="text-xs text-muted-foreground font-medium">
+            Symptoms
           </span>
         </div>
       </div>

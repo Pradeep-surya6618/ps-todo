@@ -27,8 +27,10 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search");
     const tag = searchParams.get("tag");
+    const archived = searchParams.get("archived") === "true";
+    const sortBy = searchParams.get("sort") || "updatedAt";
 
-    let query = { userId };
+    let query = { userId, isArchived: archived };
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: "i" } },
@@ -39,7 +41,12 @@ export async function GET(request) {
       query.tags = tag;
     }
 
-    const notes = await Note.find(query).sort({ isPinned: -1, updatedAt: -1 });
+    let sortQuery = { isPinned: -1 };
+    if (sortBy === "title") sortQuery.title = 1;
+    else if (sortBy === "createdAt") sortQuery.createdAt = -1;
+    else sortQuery.updatedAt = -1;
+
+    const notes = await Note.find(query).sort(sortQuery);
     return NextResponse.json(notes);
   } catch (error) {
     return NextResponse.json(

@@ -28,6 +28,10 @@ const NoteSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    isArchived: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );

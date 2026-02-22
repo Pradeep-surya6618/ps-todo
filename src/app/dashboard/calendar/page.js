@@ -1,12 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import Calendar from "@/components/calendar/Calendar";
 import EventDialog from "@/components/calendar/EventDialog";
 import DeleteConfirmationDialog from "@/components/calendar/DeleteConfirmationDialog";
-import { LayoutGrid, List, Plus, Trash2, Edit2, Clock } from "lucide-react";
-import { format } from "date-fns";
+import {
+  LayoutGrid,
+  List,
+  Plus,
+  Trash2,
+  Edit2,
+  Clock,
+  Search,
+} from "lucide-react";
+import {
+  format,
+  addDays,
+  startOfDay,
+  endOfDay,
+  isAfter,
+  isBefore,
+  isSameDay,
+} from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSnackbar } from "notistack";
 
@@ -22,6 +38,9 @@ export default function CalendarPage() {
     eventId: null,
   });
   const [isDeleting, setIsDeleting] = useState(false);
+  const [calendarMode, setCalendarMode] = useState("month");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState("all");
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
@@ -93,14 +112,51 @@ export default function CalendarPage() {
     }
   };
 
-  const filteredEvents = events.filter((e) => {
-    const eventDate = new Date(e.date);
-    return (
-      eventDate.getFullYear() === selectedDate.getFullYear() &&
-      eventDate.getMonth() === selectedDate.getMonth() &&
-      eventDate.getDate() === selectedDate.getDate()
-    );
-  });
+  // Upcoming events: next 7 days from today
+  const upcomingEvents = useMemo(() => {
+    const today = startOfDay(new Date());
+    const weekFromNow = endOfDay(addDays(today, 7));
+
+    return events
+      .filter((e) => {
+        const eventDate = new Date(e.date);
+        return (
+          (isAfter(eventDate, today) || isSameDay(eventDate, today)) &&
+          isBefore(eventDate, weekFromNow)
+        );
+      })
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .slice(0, 5);
+  }, [events]);
+
+  // Filtered events: by selected date + search query + type filter
+  const filteredEvents = useMemo(() => {
+    return events.filter((e) => {
+      const eventDate = new Date(e.date);
+      const matchesDate =
+        eventDate.getFullYear() === selectedDate.getFullYear() &&
+        eventDate.getMonth() === selectedDate.getMonth() &&
+        eventDate.getDate() === selectedDate.getDate();
+
+      const matchesSearch =
+        searchQuery.trim() === "" ||
+        e.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        e.description?.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesType =
+        filterType === "all" ||
+        e.type?.toLowerCase() === filterType.toLowerCase();
+
+      return matchesDate && matchesSearch && matchesType;
+    });
+  }, [events, selectedDate, searchQuery, filterType]);
+
+  const filterTypes = [
+    { label: "All", value: "all" },
+    { label: "Note", value: "note" },
+    { label: "Birthday", value: "birthday" },
+    { label: "Task", value: "task" },
+  ];
 
   return (
     <DashboardLayout>
@@ -127,12 +183,73 @@ export default function CalendarPage() {
           </motion.button>
         </div>
 
+        {/* Search Bar */}
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search events..."
+            className="w-full h-11 pl-10 pr-4 bg-card border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-foreground font-medium text-sm"
+          />
+        </div>
+
+        {/* Filter Chips */}
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          {filterTypes.map((type) => (
+            <button
+              key={type.value}
+              onClick={() => setFilterType(type.value)}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+                filterType === type.value
+                  ? "bg-primary text-white shadow-md"
+                  : "bg-card border border-border text-gray-500 hover:text-foreground hover:border-primary/30"
+              }`}
+            >
+              {type.label}
+            </button>
+          ))}
+        </div>
+
         {/* Calendar Component */}
         <Calendar
           events={events}
           selectedDate={selectedDate}
           onDateSelect={setSelectedDate}
+          mode={calendarMode}
+          onModeChange={setCalendarMode}
         />
+
+        {/* Upcoming Events Widget */}
+        {upcomingEvents.length > 0 && (
+          <div className="glass rounded-2xl p-4 space-y-3">
+            <h3 className="text-sm font-black text-foreground uppercase tracking-wider">
+              Upcoming (Next 7 Days)
+            </h3>
+            <div className="space-y-2">
+              {upcomingEvents.map((event) => (
+                <div
+                  key={event._id}
+                  className="flex items-center gap-3 p-2 rounded-xl hover:bg-primary/5 transition-colors"
+                >
+                  <div
+                    className="w-1 h-10 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: event.color }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-foreground truncate">
+                      {event.title}
+                    </p>
+                    <p className="text-[10px] font-medium text-gray-400">
+                      {format(new Date(event.date), "EEE, MMM d · h:mm a")}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Events Section Container */}
         <div className="space-y-4">
@@ -214,8 +331,6 @@ export default function CalendarPage() {
                       border: `1px solid ${event.color}25`,
                     }}
                   >
-                    {/* Consistent Internal Layout for both Grid and List */}
-
                     {/* Row 1: Chip and Actions */}
                     <div className="flex items-center justify-between mb-2 w-full">
                       <span

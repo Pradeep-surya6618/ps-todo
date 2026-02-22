@@ -21,7 +21,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { differenceInDays, addDays } from "date-fns";
+import { differenceInDays, addDays, subMonths, format } from "date-fns";
 import { useSnackbar } from "notistack";
 
 const symptoms = [
@@ -33,6 +33,21 @@ const symptoms = [
   { id: "tired", icon: Coffee, label: "Tired", color: "#6b7280" },
   { id: "bloating", icon: Droplets, label: "Bloating", color: "#3b82f6" },
   { id: "cravings", icon: Heart, label: "Cravings", color: "#ec4899" },
+];
+
+const moods = [
+  { id: "great", emoji: "😊", label: "Great", color: "#10b981" },
+  { id: "good", emoji: "🙂", label: "Good", color: "#3b82f6" },
+  { id: "okay", emoji: "😐", label: "Okay", color: "#f59e0b" },
+  { id: "bad", emoji: "😔", label: "Bad", color: "#f97316" },
+  { id: "awful", emoji: "😫", label: "Awful", color: "#ef4444" },
+];
+
+const flows = [
+  { id: "spot", label: "Spotting", color: "#fca5a5", drops: 1 },
+  { id: "light", label: "Light", color: "#f87171", drops: 1 },
+  { id: "medium", label: "Medium", color: "#ef4444", drops: 2 },
+  { id: "heavy", label: "Heavy", color: "#dc2626", drops: 3 },
 ];
 
 export default function CycleTrackerPage() {
@@ -48,6 +63,9 @@ export default function CycleTrackerPage() {
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
   const [logs, setLogs] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedMood, setSelectedMood] = useState("");
+  const [flowIntensity, setFlowIntensity] = useState("");
+  const [dailyNote, setDailyNote] = useState("");
 
   useEffect(() => {
     async function fetchData() {
@@ -74,7 +92,10 @@ export default function CycleTrackerPage() {
             (log) => log.date.split("T")[0] === todayStr,
           );
           if (todayLog) {
-            setSelectedSymptoms(todayLog.symptoms);
+            setSelectedSymptoms(todayLog.symptoms || []);
+            setSelectedMood(todayLog.mood || "");
+            setFlowIntensity(todayLog.flowIntensity || "");
+            setDailyNote(todayLog.note || "");
           }
         }
       } catch (error) {
@@ -209,6 +230,21 @@ export default function CycleTrackerPage() {
     return sorted.length > 0 ? sorted : null;
   }, [logs]);
 
+  const monthlyTrends = useMemo(() => {
+    const now = new Date();
+    const months = [];
+    for (let i = 2; i >= 0; i--) {
+      const monthDate = subMonths(now, i);
+      const monthLabel = format(monthDate, "MMM");
+      const monthYear = format(monthDate, "yyyy-MM");
+      const count = logs.filter(
+        (log) => log.date.substring(0, 7) === monthYear,
+      ).length;
+      months.push({ label: monthLabel, count });
+    }
+    return months;
+  }, [logs]);
+
   const handleSaveSettings = async (newSettings) => {
     try {
       const mergedSettings = { ...cycleSettings, ...newSettings };
@@ -246,8 +282,13 @@ export default function CycleTrackerPage() {
   };
 
   const handleLogSubmit = async () => {
-    if (selectedSymptoms.length === 0) {
-      enqueueSnackbar("Select symptoms to log first", { variant: "info" });
+    if (
+      selectedSymptoms.length === 0 &&
+      !selectedMood &&
+      !flowIntensity &&
+      !dailyNote.trim()
+    ) {
+      enqueueSnackbar("Add at least one entry to log", { variant: "info" });
       return;
     }
     setIsSaving(true);
@@ -258,10 +299,13 @@ export default function CycleTrackerPage() {
         body: JSON.stringify({
           date: new Date().toISOString(),
           symptoms: selectedSymptoms,
+          mood: selectedMood,
+          flowIntensity,
+          note: dailyNote,
         }),
       });
       if (res.ok) {
-        enqueueSnackbar("Symptoms logged!", { variant: "success" });
+        enqueueSnackbar("Daily log saved!", { variant: "success" });
         const newLog = await res.json();
         const filteredLogs = logs.filter(
           (l) => l.date.split("T")[0] !== newLog.date.split("T")[0],
@@ -271,7 +315,7 @@ export default function CycleTrackerPage() {
         throw new Error("Failed to log");
       }
     } catch (error) {
-      enqueueSnackbar("Failed to log symptoms", { variant: "error" });
+      enqueueSnackbar("Failed to save log", { variant: "error" });
     } finally {
       setIsSaving(false);
     }
@@ -420,6 +464,104 @@ export default function CycleTrackerPage() {
           </div>
         </motion.div>
 
+        {/* Mood Selector */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12 }}
+          className="space-y-3"
+        >
+          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider ml-1">
+            Today&apos;s Mood
+          </h3>
+          <div className="flex gap-2">
+            {moods.map((mood) => {
+              const isSelected = selectedMood === mood.id;
+              return (
+                <button
+                  key={mood.id}
+                  onClick={() =>
+                    setSelectedMood((prev) =>
+                      prev === mood.id ? "" : mood.id,
+                    )
+                  }
+                  className="flex-1 flex flex-col items-center gap-1 p-2 rounded-xl transition-all cursor-pointer"
+                  style={{
+                    backgroundColor: isSelected
+                      ? `${mood.color}20`
+                      : "transparent",
+                    border: isSelected
+                      ? `2px solid ${mood.color}`
+                      : "2px solid transparent",
+                  }}
+                >
+                  <span className="text-xl">{mood.emoji}</span>
+                  <span
+                    className={`text-[9px] font-bold ${isSelected ? "font-black" : "text-gray-500"}`}
+                    style={isSelected ? { color: mood.color } : {}}
+                  >
+                    {mood.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
+
+        {/* Flow Intensity */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.13 }}
+          className="space-y-3"
+        >
+          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider ml-1">
+            Flow Intensity
+          </h3>
+          <div className="grid grid-cols-4 gap-2">
+            {flows.map((flow) => {
+              const isSelected = flowIntensity === flow.id;
+              return (
+                <button
+                  key={flow.id}
+                  onClick={() =>
+                    setFlowIntensity((prev) =>
+                      prev === flow.id ? "" : flow.id,
+                    )
+                  }
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all cursor-pointer"
+                  style={{
+                    backgroundColor: isSelected
+                      ? `${flow.color}25`
+                      : "transparent",
+                    border: isSelected
+                      ? `2px solid ${flow.color}`
+                      : "2px solid transparent",
+                  }}
+                >
+                  <div className="flex flex-col items-center gap-0.5">
+                    {[...Array(flow.drops)].map((_, i) => (
+                      <Droplets
+                        key={i}
+                        size={14}
+                        style={{
+                          color: isSelected ? flow.color : "#9ca3af",
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <span
+                    className={`text-[9px] font-bold ${isSelected ? "font-black" : "text-gray-500"}`}
+                    style={isSelected ? { color: flow.color } : {}}
+                  >
+                    {flow.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
+
         {/* Symptom Logger */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -474,9 +616,30 @@ export default function CycleTrackerPage() {
               );
             })}
           </div>
+          {/* Daily Note */}
+          <div className="space-y-1.5">
+            <textarea
+              value={dailyNote}
+              onChange={(e) => setDailyNote(e.target.value)}
+              placeholder="How are you feeling today?"
+              maxLength={500}
+              rows={3}
+              className="w-full p-3 rounded-xl bg-gray-50 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700 text-sm text-foreground placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+            />
+            <p className="text-[10px] text-gray-400 text-right font-medium">
+              {dailyNote.length}/500
+            </p>
+          </div>
+
           <button
             onClick={handleLogSubmit}
-            disabled={isSaving || selectedSymptoms.length === 0}
+            disabled={
+              isSaving ||
+              (selectedSymptoms.length === 0 &&
+                !selectedMood &&
+                !flowIntensity &&
+                !dailyNote.trim())
+            }
             className="w-full h-11 bg-primary text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isSaving ? (
@@ -484,7 +647,7 @@ export default function CycleTrackerPage() {
             ) : (
               <Plus size={16} />
             )}
-            Log Symptoms
+            Log Today
           </button>
         </motion.div>
 
@@ -500,6 +663,7 @@ export default function CycleTrackerPage() {
             predictedPeriodStart={cycleData.predictedPeriodStart}
             periodLength={cycleSettings.periodLength}
             onDateClick={handleDateClick}
+            logs={logs}
           />
         </motion.div>
 
@@ -585,6 +749,59 @@ export default function CycleTrackerPage() {
             <p className="text-[10px] text-gray-400 font-medium mt-3">
               Based on {logs.length} logged{" "}
               {logs.length === 1 ? "day" : "days"}
+            </p>
+          </motion.div>
+        )}
+
+        {/* Monthly Trends */}
+        {logs.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="glass rounded-3xl p-5"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingUp size={16} className="text-primary" />
+              <h3 className="text-sm font-bold text-foreground">
+                Monthly Trends
+              </h3>
+            </div>
+            <div className="flex items-end justify-around gap-4 h-40">
+              {monthlyTrends.map((month) => {
+                const maxCount = Math.max(
+                  ...monthlyTrends.map((m) => m.count),
+                  1,
+                );
+                const heightPercent = (month.count / maxCount) * 100;
+                return (
+                  <div
+                    key={month.label}
+                    className="flex flex-col items-center gap-2 flex-1"
+                  >
+                    <span className="text-xs font-bold text-foreground">
+                      {month.count}
+                    </span>
+                    <div className="w-full flex items-end justify-center h-24">
+                      <motion.div
+                        initial={{ height: 0 }}
+                        animate={{
+                          height: `${heightPercent}%`,
+                        }}
+                        transition={{ duration: 0.8, delay: 0.4 }}
+                        className="w-10 rounded-t-lg bg-primary/80"
+                        style={{ minHeight: month.count > 0 ? 8 : 0 }}
+                      />
+                    </div>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                      {month.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-[10px] text-gray-400 font-medium mt-3 text-center">
+              Logs per month over the last 3 months
             </p>
           </motion.div>
         )}
